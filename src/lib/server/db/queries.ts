@@ -16,13 +16,20 @@ export async function listProjects(jobId?: number) {
 	});
 }
 
+// A job's first wage rate applies retroactively (from the epoch), so manual entries
+// backdated before the job's creation timestamp still get a rate. Later rate changes
+// (addWageRate) apply from their own validFrom onward and supersede it.
+const RETROACTIVE_DATE = new Date(0);
+
 export async function createJob(data: { name: string; hourlyRateCents: number; isMinijob: boolean }) {
 	return db.transaction(async (tx) => {
 		const [job] = await tx
 			.insert(jobs)
 			.values({ name: data.name, isMinijob: data.isMinijob })
 			.returning();
-		await tx.insert(wageRates).values({ jobId: job.id, hourlyRateCents: data.hourlyRateCents });
+		await tx
+			.insert(wageRates)
+			.values({ jobId: job.id, hourlyRateCents: data.hourlyRateCents, validFrom: RETROACTIVE_DATE });
 		return job;
 	});
 }
