@@ -4,6 +4,11 @@ export function formatDuration(totalSeconds: number): string {
 	return `${hours}h ${minutes.toString().padStart(2, '0')}m`;
 }
 
+export function formatSignedDuration(totalSeconds: number): string {
+	const sign = totalSeconds < 0 ? '−' : '+';
+	return `${sign}${formatDuration(Math.abs(totalSeconds))}`;
+}
+
 export function formatCents(cents: number): string {
 	return (cents / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
 }

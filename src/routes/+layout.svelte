@@ -8,7 +8,10 @@
 	const links = [
 		{ href: '/', label: 'Dashboard' },
 		{ href: '/overview', label: 'Übersicht' },
-		{ href: '/jobs', label: 'Jobs' }
+		{ href: '/stats', label: 'Statistik' },
+		{ href: '/export', label: 'Export' },
+		{ href: '/jobs', label: 'Jobs' },
+		{ href: '/settings', label: 'Einstellungen' }
 	];
 </script>
 

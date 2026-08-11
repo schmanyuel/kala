@@ -1,6 +1,6 @@
 import { and, desc, eq, gte, isNull, lte } from 'drizzle-orm';
 import { db } from './index';
-import { jobs, projects, timeEntries, wageRates } from './schema';
+import { jobs, projects, settings, timeEntries, wageRates } from './schema';
 
 export async function listJobs() {
 	return db.query.jobs.findMany({
@@ -134,4 +134,21 @@ export async function summarizeEntries(entries: (typeof timeEntries.$inferSelect
 	}
 
 	return { totalSeconds, totalGrossCents: Math.round(totalGrossCents) };
+}
+
+export async function getSettings() {
+	const [row] = await db.select().from(settings).where(eq(settings.id, 1)).limit(1);
+	if (row) return row;
+	const [created] = await db.insert(settings).values({ id: 1 }).returning();
+	return created;
+}
+
+export async function updateWeeklyTargetHours(hours: number) {
+	await db
+		.insert(settings)
+		.values({ id: 1, weeklyTargetHours: hours.toFixed(2) })
+		.onConflictDoUpdate({
+			target: settings.id,
+			set: { weeklyTargetHours: hours.toFixed(2), updatedAt: new Date() }
+		});
 }

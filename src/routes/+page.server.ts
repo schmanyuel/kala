@@ -10,18 +10,7 @@ import {
 	stopTimer,
 	summarizeEntries
 } from '$lib/server/db/queries';
-
-function startOfDay(date: Date): Date {
-	const d = new Date(date);
-	d.setHours(0, 0, 0, 0);
-	return d;
-}
-
-function endOfDay(date: Date): Date {
-	const d = new Date(date);
-	d.setHours(23, 59, 59, 999);
-	return d;
-}
+import { endOfDay, startOfDay } from '$lib/date';
 
 export const load: PageServerLoad = async () => {
 	const now = new Date();

@@ -1,4 +1,4 @@
-import { pgTable, serial, integer, text, timestamp, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, serial, integer, text, timestamp, boolean, numeric } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 export const jobs = pgTable('jobs', {
@@ -66,3 +66,10 @@ export const timeEntriesRelations = relations(timeEntries, ({ one }) => ({
 	job: one(jobs, { fields: [timeEntries.jobId], references: [jobs.id] }),
 	project: one(projects, { fields: [timeEntries.projectId], references: [projects.id] })
 }));
+
+// Single-user app: always exactly one row (id = 1).
+export const settings = pgTable('settings', {
+	id: integer('id').primaryKey().default(1),
+	weeklyTargetHours: numeric('weekly_target_hours', { precision: 5, scale: 2 }).notNull().default('40'),
+	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+});

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { formatCents, formatDate, formatDuration, formatTime } from '$lib/format';
+	import { formatCents, formatDate, formatDuration, formatSignedDuration, formatTime } from '$lib/format';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -23,12 +23,20 @@
 		</div>
 	</div>
 
-	<section class="flex items-baseline justify-between rounded-lg border border-neutral-200 bg-white p-5">
-		<div>
-			<p class="text-sm text-neutral-500">Woche gesamt</p>
-			<p class="text-xl font-semibold text-neutral-900">{formatDuration(data.weekSummary.totalSeconds)}</p>
+	<section class="rounded-lg border border-neutral-200 bg-white p-5">
+		<div class="flex items-baseline justify-between">
+			<div>
+				<p class="text-sm text-neutral-500">Woche gesamt</p>
+				<p class="text-xl font-semibold text-neutral-900">{formatDuration(data.weekSummary.totalSeconds)}</p>
+			</div>
+			<p class="text-lg text-neutral-600">{formatCents(data.weekSummary.totalGrossCents)} brutto</p>
 		</div>
-		<p class="text-lg text-neutral-600">{formatCents(data.weekSummary.totalGrossCents)} brutto</p>
+		<p class="mt-3 border-t border-neutral-100 pt-3 text-sm">
+			<span class={data.overtimeSeconds >= 0 ? 'text-emerald-700' : 'text-neutral-500'}>
+				{formatSignedDuration(data.overtimeSeconds)}
+			</span>
+			<span class="text-neutral-400">gegenüber Soll von {data.weeklyTargetHours}h/Woche</span>
+		</p>
 	</section>
 
 	<ul class="divide-y divide-neutral-200 rounded-lg border border-neutral-200 bg-white">
