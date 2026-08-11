@@ -1,0 +1,68 @@
+import { pgTable, serial, integer, text, timestamp, boolean } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
+
+export const jobs = pgTable('jobs', {
+	id: serial('id').primaryKey(),
+	name: text('name').notNull(),
+	color: text('color').notNull().default('#64748b'),
+	isMinijob: boolean('is_minijob').notNull().default(false),
+	archived: boolean('archived').notNull().default(false),
+	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
+});
+
+export const jobsRelations = relations(jobs, ({ many }) => ({
+	wageRates: many(wageRates),
+	projects: many(projects),
+	timeEntries: many(timeEntries)
+}));
+
+// Hourly rate, historized: a job can have multiple rates over time.
+// The rate valid for an entry is the one with the latest validFrom <= entry start.
+export const wageRates = pgTable('wage_rates', {
+	id: serial('id').primaryKey(),
+	jobId: integer('job_id')
+		.notNull()
+		.references(() => jobs.id, { onDelete: 'cascade' }),
+	hourlyRateCents: integer('hourly_rate_cents').notNull(),
+	validFrom: timestamp('valid_from', { withTimezone: true }).notNull().defaultNow(),
+	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
+});
+
+export const wageRatesRelations = relations(wageRates, ({ one }) => ({
+	job: one(jobs, { fields: [wageRates.jobId], references: [jobs.id] })
+}));
+
+export const projects = pgTable('projects', {
+	id: serial('id').primaryKey(),
+	jobId: integer('job_id')
+		.notNull()
+		.references(() => jobs.id, { onDelete: 'cascade' }),
+	name: text('name').notNull(),
+	color: text('color').notNull().default('#64748b'),
+	archived: boolean('archived').notNull().default(false),
+	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
+});
+
+export const projectsRelations = relations(projects, ({ one, many }) => ({
+	job: one(jobs, { fields: [projects.jobId], references: [jobs.id] }),
+	timeEntries: many(timeEntries)
+}));
+
+export const timeEntries = pgTable('time_entries', {
+	id: serial('id').primaryKey(),
+	jobId: integer('job_id')
+		.notNull()
+		.references(() => jobs.id, { onDelete: 'cascade' }),
+	projectId: integer('project_id').references(() => projects.id, { onDelete: 'set null' }),
+	// endTime is null while the timer is running (at most one running entry expected).
+	startTime: timestamp('start_time', { withTimezone: true }).notNull(),
+	endTime: timestamp('end_time', { withTimezone: true }),
+	note: text('note'),
+	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+});
+
+export const timeEntriesRelations = relations(timeEntries, ({ one }) => ({
+	job: one(jobs, { fields: [timeEntries.jobId], references: [jobs.id] }),
+	project: one(projects, { fields: [timeEntries.projectId], references: [projects.id] })
+}));
