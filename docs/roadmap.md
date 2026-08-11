@@ -46,9 +46,9 @@ week overview, a stats page (weekly-hours trend chart + per-job breakdown chart,
 built with a validated CVD-safe categorical palette), and CSV/PDF export of time
 entries for a date range.
 
-### Phase 3 — Realtime & PWA (in progress)
+### Phase 3 — Realtime & PWA ✅ done
 
-- Postgres `NOTIFY` on entry/timer changes → SSE → live client updates ✅ done
+- Postgres `NOTIFY` on entry/timer changes → SSE → live client updates
   (no manual refresh needed, e.g. when the same account is open on two devices).
 - PWA manifest + service worker so the app is installable on Android.
 
