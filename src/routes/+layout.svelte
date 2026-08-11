@@ -2,8 +2,11 @@
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import { page } from '$app/state';
+	import { connectRealtime } from '$lib/realtime';
 
 	let { children } = $props();
+
+	$effect(() => connectRealtime());
 
 	const links = [
 		{ href: '/', label: 'Dashboard' },
