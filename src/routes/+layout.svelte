@@ -1,12 +1,17 @@
 <script lang="ts">
 	import './layout.css';
-	import favicon from '$lib/assets/favicon.svg';
 	import { page } from '$app/state';
 	import { connectRealtime } from '$lib/realtime';
 
 	let { children } = $props();
 
 	$effect(() => connectRealtime());
+
+	$effect(() => {
+		if ('serviceWorker' in navigator) {
+			navigator.serviceWorker.register('/service-worker.js', { type: 'module' });
+		}
+	});
 
 	const links = [
 		{ href: '/', label: 'Dashboard' },
@@ -17,8 +22,6 @@
 		{ href: '/settings', label: 'Einstellungen' }
 	];
 </script>
-
-<svelte:head><link rel="icon" href={favicon} /></svelte:head>
 
 <div class="min-h-screen bg-neutral-50 text-neutral-900">
 	<header class="border-b border-neutral-200 bg-white">

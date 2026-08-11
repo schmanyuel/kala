@@ -11,13 +11,15 @@ pay (Gehalt) from an hourly wage, and see a dashboard overview.
 - **Plain Postgres in Docker**, not self-hosted Supabase — Supabase's extra moving
   parts (Auth, Realtime server, Storage, GoTrue, etc.) are unnecessary complexity
   for a single-user app. Realtime is achieved directly via Postgres
-  `LISTEN`/`NOTIFY` + a WebSocket, so Supabase brings no benefit here.
+  `LISTEN`/`NOTIFY`, so Supabase brings no benefit here.
 - **SvelteKit** as the full-stack framework (explicit user preference), with
   **Drizzle ORM** and **Tailwind CSS**.
 - **No auth initially** — protected at the network level (homelab/Tailscale).
   Optional auth is deferred to the polish phase.
-- **Realtime sync** — Postgres `LISTEN`/`NOTIFY` pushed to clients over a
-  WebSocket. No external realtime service needed.
+- **Realtime sync** — Postgres `LISTEN`/`NOTIFY` pushed to clients over
+  Server-Sent Events (SSE), not a WebSocket. Same one-way push behavior with far
+  fewer moving parts (no upgrade handling to wire into both the Vite dev server
+  and adapter-node's production server). No external realtime service needed.
 - **PWA, not Capacitor** — Android has strong PWA support (the user's priority
   platform), so a installable PWA is sufficient for now. Capacitor (native wrapper,
   needed mainly for iOS/deeper native APIs) is deferred and only revisited if
@@ -44,9 +46,9 @@ week overview, a stats page (weekly-hours trend chart + per-job breakdown chart,
 built with a validated CVD-safe categorical palette), and CSV/PDF export of time
 entries for a date range.
 
-### Phase 3 — Realtime & PWA (next)
+### Phase 3 — Realtime & PWA (in progress)
 
-- Postgres `NOTIFY` on entry/timer changes → WebSocket → live client updates
+- Postgres `NOTIFY` on entry/timer changes → SSE → live client updates ✅ done
   (no manual refresh needed, e.g. when the same account is open on two devices).
 - PWA manifest + service worker so the app is installable on Android.
 
