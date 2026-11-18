@@ -27,3 +27,4 @@ vite.config.ts.timestamp-*
 .serena/
 .vscode/
 .playwright-mcp/
+/graphify-out
