@@ -117,7 +117,7 @@ export const GET: RequestHandler = async ({ url }) => {
 	return new Response(new Uint8Array(pdfBuffer), {
 		headers: {
 			'Content-Type': 'application/pdf',
-			'Content-Disposition': `attachment; filename="tracky-export-${fromRaw ?? 'export'}_${toRaw ?? ''}.pdf"`
+			'Content-Disposition': `attachment; filename="kala-export-${fromRaw ?? 'export'}_${toRaw ?? ''}.pdf"`
 		}
 	});
 };

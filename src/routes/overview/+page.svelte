@@ -72,7 +72,7 @@
 	const pad = (n: number) => n.toString().padStart(2, '0');
 </script>
 
-<svelte:head><title>tracky · Übersicht</title></svelte:head>
+<svelte:head><title>kala · Übersicht</title></svelte:head>
 
 <div class="flex flex-col gap-7">
 	<PageHeader {eyebrow} title="Wochenübersicht">

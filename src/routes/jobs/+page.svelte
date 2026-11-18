@@ -45,7 +45,7 @@
 		};
 </script>
 
-<svelte:head><title>tracky · Jobs</title></svelte:head>
+<svelte:head><title>kala · Jobs</title></svelte:head>
 
 <div class="flex flex-col gap-7">
 	<PageHeader {eyebrow} title="Jobs">

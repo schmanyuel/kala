@@ -6,7 +6,7 @@
 	let { data }: { data: PageData } = $props();
 </script>
 
-<svelte:head><title>tracky · Eintrag nachtragen</title></svelte:head>
+<svelte:head><title>kala · Eintrag nachtragen</title></svelte:head>
 
 <div class="mx-auto flex max-w-[540px] flex-col rounded-2xl bg-surface">
 	<EntryForm

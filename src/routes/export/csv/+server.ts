@@ -44,7 +44,7 @@ export const GET: RequestHandler = async ({ url }) => {
 	return new Response(bom + csv, {
 		headers: {
 			'Content-Type': 'text/csv; charset=utf-8',
-			'Content-Disposition': `attachment; filename="tracky-export-${fromRaw ?? 'export'}_${toRaw ?? ''}.csv"`
+			'Content-Disposition': `attachment; filename="kala-export-${fromRaw ?? 'export'}_${toRaw ?? ''}.csv"`
 		}
 	});
 };

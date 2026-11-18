@@ -7,7 +7,7 @@ import { build, files, version } from '$service-worker';
 
 const sw = self as unknown as ServiceWorkerGlobalScope;
 
-const CACHE = `tracky-cache-${version}`;
+const CACHE = `kala-cache-${version}`;
 // App shell + static assets. Pages themselves are server-rendered and DB-backed,
 // so they're served network-first with a cache fallback for when offline.
 const ASSETS = [...build, ...files];

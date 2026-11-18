@@ -70,7 +70,7 @@
 	]);
 </script>
 
-<svelte:head><title>tracky · Statistik</title></svelte:head>
+<svelte:head><title>kala · Statistik</title></svelte:head>
 
 <div class="flex flex-col gap-7">
 	<PageHeader eyebrow={ranges.find((r) => r.key === data.range)?.eyebrow ?? ''} title="Statistik">

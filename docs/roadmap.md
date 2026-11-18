@@ -1,4 +1,4 @@
-# tracky — Architecture & Roadmap
+# kala — Architecture & Roadmap
 
 ## Goal
 

@@ -1,4 +1,4 @@
-# tracky
+# kala
 
 Self-hostable personal time-tracking app: track work hours, calculate gross pay from
 hourly wage, and get a dashboard overview. Single-user, no auth (network-level

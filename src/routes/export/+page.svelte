@@ -65,7 +65,7 @@
 	);
 </script>
 
-<svelte:head><title>tracky · Export</title></svelte:head>
+<svelte:head><title>kala · Export</title></svelte:head>
 
 <div class="flex flex-col gap-7 lg:min-h-[calc(100vh-4rem)]">
 	<PageHeader eyebrow="Stundennachweis · CSV · PDF" title="Export" />
@@ -245,7 +245,7 @@
 						<p class="font-mono text-[10px] text-[#7a776f]">{rangeLabel}</p>
 					</div>
 					<p class="flex items-center gap-1.5 text-[13px] font-bold tracking-tight">
-						<span class="size-3 rounded-full bg-[#1a1a18]"></span>tracky
+						<span class="size-3 rounded-full bg-[#1a1a18]"></span>kala
 					</p>
 				</div>
 

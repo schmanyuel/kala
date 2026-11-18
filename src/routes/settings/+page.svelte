@@ -24,10 +24,10 @@
 	]);
 </script>
 
-<svelte:head><title>tracky · Einstellungen</title></svelte:head>
+<svelte:head><title>kala · Einstellungen</title></svelte:head>
 
 <div class="flex flex-col gap-7">
-	<PageHeader eyebrow="tracky · self-hosted" title="Einstellungen">
+	<PageHeader eyebrow="kala · self-hosted" title="Einstellungen">
 		{#if form?.success && !dirty}
 			<p
 				role="status"

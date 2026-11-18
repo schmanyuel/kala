@@ -89,7 +89,7 @@
 		1000;
 </script>
 
-<svelte:head><title>tracky · Dashboard</title></svelte:head>
+<svelte:head><title>kala · Dashboard</title></svelte:head>
 
 <div class="flex flex-col gap-7">
 	<header id="topbar" class="flex flex-wrap items-center justify-between gap-4">

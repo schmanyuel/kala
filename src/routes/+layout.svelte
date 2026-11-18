@@ -53,7 +53,7 @@
 	>
 		<a href="/" class="flex items-center gap-2.5 px-1">
 			<span class="size-5.5 rounded-full bg-accent" aria-hidden="true"></span>
-			<span class="text-[19px] font-bold tracking-tight">tracky</span>
+			<span class="text-[19px] font-bold tracking-tight">kala</span>
 		</a>
 		<nav
 			class="-mx-1 flex gap-0.5 overflow-x-auto px-1 lg:flex-col lg:overflow-visible"
