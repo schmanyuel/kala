@@ -5,7 +5,10 @@ declare global {
 		// interface Error {}
 		// interface Locals {}
 		// interface PageData {}
-		// interface PageState {}
+		interface PageState {
+			/** Data for the "Eintrag nachtragen" sheet, opened via shallow routing. */
+			entrySheet?: import('./routes/entry/$types').PageData;
+		}
 		// interface Platform {}
 	}
 }

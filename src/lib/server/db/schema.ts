@@ -1,5 +1,5 @@
 import { pgTable, serial, integer, text, timestamp, boolean, numeric } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 
 export const jobs = pgTable('jobs', {
 	id: serial('id').primaryKey(),
@@ -58,6 +58,11 @@ export const timeEntries = pgTable('time_entries', {
 	startTime: timestamp('start_time', { withTimezone: true }).notNull(),
 	endTime: timestamp('end_time', { withTimezone: true }),
 	note: text('note'),
+	// What was done during the entry, one item per line (shown in the Stundennachweis).
+	activities: text('activities')
+		.array()
+		.notNull()
+		.default(sql`'{}'::text[]`),
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
 });
@@ -70,6 +75,24 @@ export const timeEntriesRelations = relations(timeEntries, ({ one }) => ({
 // Single-user app: always exactly one row (id = 1).
 export const settings = pgTable('settings', {
 	id: integer('id').primaryKey().default(1),
-	weeklyTargetHours: numeric('weekly_target_hours', { precision: 5, scale: 2 }).notNull().default('40'),
+	weeklyTargetHours: numeric('weekly_target_hours', { precision: 5, scale: 2 })
+		.notNull()
+		.default('40'),
 	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
 });
+
+// Personal to-do list. Checking a todo off copies its text into an entry's activities
+// (the running one, or the one being added manually) and remembers that entry.
+export const todos = pgTable('todos', {
+	id: serial('id').primaryKey(),
+	jobId: integer('job_id').references(() => jobs.id, { onDelete: 'cascade' }),
+	text: text('text').notNull(),
+	doneAt: timestamp('done_at', { withTimezone: true }),
+	entryId: integer('entry_id').references(() => timeEntries.id, { onDelete: 'set null' }),
+	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
+});
+
+export const todosRelations = relations(todos, ({ one }) => ({
+	job: one(jobs, { fields: [todos.jobId], references: [jobs.id] }),
+	entry: one(timeEntries, { fields: [todos.entryId], references: [timeEntries.id] })
+}));

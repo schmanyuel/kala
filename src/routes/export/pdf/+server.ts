@@ -1,42 +1,24 @@
 import PDFDocument from 'pdfkit';
 import type { RequestHandler } from './$types';
-import { getCurrentWageRateCents, listEntriesBetween } from '$lib/server/db/queries';
-import { endOfDay, startOfDay } from '$lib/date';
+import { loadExportRows, parseExportParams } from '$lib/server/export';
 import { formatCents, formatDuration } from '$lib/format';
 
+const time = (d: Date) => d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+
 export const GET: RequestHandler = async ({ url }) => {
-	const fromRaw = url.searchParams.get('from');
-	const toRaw = url.searchParams.get('to');
-	const from = fromRaw ? startOfDay(new Date(fromRaw)) : startOfDay(new Date());
-	const to = toRaw ? endOfDay(new Date(toRaw)) : endOfDay(new Date());
-
-	const entries = [...(await listEntriesBetween(from, to))].reverse();
-	const now = new Date();
-
-	type Row = { date: string; job: string; start: string; end: string; duration: string; note: string; grossCents: number };
-	const rows: Row[] = [];
-	let totalSeconds = 0;
-	let totalGrossCents = 0;
-
-	for (const entry of entries) {
-		const start = new Date(entry.startTime);
-		const end = entry.endTime ? new Date(entry.endTime) : now;
-		const seconds = Math.max(0, (end.getTime() - start.getTime()) / 1000);
-		const rateCents = (await getCurrentWageRateCents(entry.jobId, start)) ?? 0;
-		const grossCents = Math.round((seconds / 3600) * rateCents);
-		totalSeconds += seconds;
-		totalGrossCents += grossCents;
-
-		rows.push({
-			date: start.toLocaleDateString('de-DE'),
-			job: entry.job.name,
-			start: start.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
-			end: entry.endTime ? end.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : 'läuft',
-			duration: formatDuration(seconds),
-			note: entry.note ?? '',
-			grossCents
-		});
-	}
+	const { fromRaw, toRaw, from, to, jobIds } = parseExportParams(url);
+	const data = await loadExportRows(from, to, jobIds);
+	const { totalSeconds, totalGrossCents } = data;
+	const rows = data.rows.map((row) => ({
+		date: row.start.toLocaleDateString('de-DE'),
+		job: row.entry.job.name,
+		start: time(row.start),
+		end: row.running ? 'läuft' : time(row.end),
+		duration: formatDuration(row.seconds),
+		note: row.entry.note ?? '',
+		activities: row.entry.activities,
+		grossCents: row.grossCents
+	}));
 
 	const pdfBuffer = await new Promise<Buffer>((resolve, reject) => {
 		const doc = new PDFDocument({ size: 'A4', margin: 50 });
@@ -45,8 +27,11 @@ export const GET: RequestHandler = async ({ url }) => {
 		doc.on('end', () => resolve(Buffer.concat(chunks)));
 		doc.on('error', reject);
 
-		doc.fontSize(18).text('Zeitbericht', { continued: false });
-		doc.fontSize(10).fillColor('#666666').text(`${from.toLocaleDateString('de-DE')} – ${to.toLocaleDateString('de-DE')}`);
+		doc.fontSize(18).text('Stundennachweis', { continued: false });
+		doc
+			.fontSize(10)
+			.fillColor('#666666')
+			.text(`${from.toLocaleDateString('de-DE')} – ${to.toLocaleDateString('de-DE')}`);
 		doc.moveDown(1.5);
 
 		const colX = { date: 50, job: 115, start: 220, end: 265, duration: 310, note: 365, gross: 480 };
@@ -80,6 +65,14 @@ export const GET: RequestHandler = async ({ url }) => {
 				.text(row.duration, colX.duration, y, { width: 50 })
 				.text(row.note, colX.note, y, { width: 110 })
 				.text(formatCents(row.grossCents), colX.gross, y, { width: 65, align: 'right' });
+			if (row.activities.length) {
+				doc
+					.fontSize(8)
+					.fillColor('#666666')
+					.text(row.activities.map((a) => `– ${a}`).join('\n'), colX.job, doc.y + 1, { width: 430 })
+					.fontSize(9)
+					.fillColor('#333333');
+			}
 			doc.moveDown(0.4);
 		}
 
@@ -88,19 +81,35 @@ export const GET: RequestHandler = async ({ url }) => {
 		}
 
 		doc.moveDown(1);
-		doc
-			.moveTo(50, doc.y)
-			.lineTo(545, doc.y)
-			.strokeColor('#cccccc')
-			.stroke();
+		doc.moveTo(50, doc.y).lineTo(545, doc.y).strokeColor('#cccccc').stroke();
 		doc.moveDown(0.5);
+		if (data.perJob.length > 1) {
+			doc.fontSize(9).fillColor('#666666');
+			for (const job of data.perJob) {
+				doc.text(
+					`${job.name}: ${formatDuration(job.seconds)}   ·   ${formatCents(job.grossCents)}`,
+					50,
+					doc.y,
+					{
+						width: 495,
+						align: 'right'
+					}
+				);
+			}
+			doc.moveDown(0.3);
+		}
 		doc
 			.fontSize(11)
 			.fillColor('#000000')
-			.text(`Gesamt: ${formatDuration(totalSeconds)}   ·   ${formatCents(totalGrossCents)} brutto`, 50, doc.y, {
-				width: 495,
-				align: 'right'
-			});
+			.text(
+				`Gesamt: ${formatDuration(totalSeconds)}   ·   ${formatCents(totalGrossCents)} brutto`,
+				50,
+				doc.y,
+				{
+					width: 495,
+					align: 'right'
+				}
+			);
 
 		doc.end();
 	});

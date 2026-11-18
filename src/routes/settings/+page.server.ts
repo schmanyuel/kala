@@ -1,10 +1,11 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { getSettings, updateWeeklyTargetHours } from '$lib/server/db/queries';
+import { countEntries, getSettings, updateWeeklyTargetHours } from '$lib/server/db/queries';
+import { version } from '../../../package.json';
 
 export const load: PageServerLoad = async () => {
-	const settings = await getSettings();
-	return { settings };
+	const [settings, entryCount] = await Promise.all([getSettings(), countEntries()]);
+	return { settings, entryCount, version };
 };
 
 export const actions: Actions = {

@@ -35,3 +35,11 @@ export function endOfMonth(date: Date): Date {
 	d.setHours(23, 59, 59, 999);
 	return d;
 }
+
+/** ISO 8601 calendar week number. */
+export function isoWeek(date: Date): number {
+	const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+	d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+	const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+	return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+}
