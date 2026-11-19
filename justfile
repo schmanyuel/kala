@@ -22,3 +22,9 @@ dev: db-migrate
 
 check:
     npm run check
+
+backup:
+    cd docker/ && docker compose exec -T pg pg_dumpall -U postgres > ../kala.sql
+
+deploy: check
+    git pull && cd docker/ && docker compose up -d --build
