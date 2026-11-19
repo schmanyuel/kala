@@ -1,0 +1,43 @@
+# Production stack for kala. Usage (from the repo root):
+#   cp docker/.env.example docker/.env   # then set a real password
+#   docker compose -f docker/compose.yaml up -d --build
+name: kala
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: kala:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - '${KALA_PORT:-3000}:3000'
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      # Exact URL you open kala at (protocol + host + port). SvelteKit's CSRF check rejects
+      # every form submission from any other origin.
+      ORIGIN: ${ORIGIN:?Set ORIGIN in docker/.env, e.g. http://homeserver:3000}
+      TZ: ${TZ:-Europe/Berlin}
+
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      TZ: ${TZ:-Europe/Berlin}
+      PGTZ: ${TZ:-Europe/Berlin}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:
