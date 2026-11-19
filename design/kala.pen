@@ -21311,6 +21311,1322 @@
           ]
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "SeIMd",
+      "x": 0,
+      "y": 4600,
+      "name": "Logo-Vorschläge",
+      "width": 1680,
+      "fill": "$bg",
+      "layout": "vertical",
+      "gap": 48,
+      "padding": 80,
+      "children": [
+        {
+          "type": "frame",
+          "id": "Uo5GB",
+          "name": "Header",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 10,
+          "children": [
+            {
+              "type": "text",
+              "id": "Mhla2",
+              "name": "Eyebrow",
+              "fill": "$accent",
+              "content": "KALA · LOGO-EXPLORATION",
+              "fontFamily": "JetBrains Mono",
+              "fontSize": 13,
+              "fontWeight": "normal",
+              "letterSpacing": 2
+            },
+            {
+              "type": "text",
+              "id": "ypdgz",
+              "name": "Title",
+              "fill": "$fg",
+              "content": "Sechs Richtungen für das neue Zeichen",
+              "fontFamily": "Inter Tight",
+              "fontSize": 44,
+              "fontWeight": "600"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "Yc5fS",
+          "name": "Row 1",
+          "width": "fill_container",
+          "gap": 24,
+          "children": [
+            {
+              "type": "frame",
+              "id": "B2aHn",
+              "name": "Konzept 01",
+              "width": "fill_container",
+              "fill": "$surface",
+              "cornerRadius": 4,
+              "layout": "vertical",
+              "gap": 20,
+              "padding": 28,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "TwgZG",
+                  "name": "Stage",
+                  "width": "fill_container",
+                  "height": 300,
+                  "fill": "$bg",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "D8zB45",
+                      "name": "Mark Halbe Stunde",
+                      "width": 180,
+                      "height": 180,
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "ellipse",
+                          "id": "AkBMA",
+                          "x": 10,
+                          "y": 10,
+                          "name": "Ring",
+                          "innerRadius": 0.82,
+                          "fill": "#D4FF3A",
+                          "width": 160,
+                          "height": 160
+                        },
+                        {
+                          "type": "ellipse",
+                          "id": "KC0fl",
+                          "x": 30,
+                          "y": 30,
+                          "name": "Half",
+                          "startAngle": -90,
+                          "sweepAngle": 180,
+                          "fill": "#D4FF3A",
+                          "width": 120,
+                          "height": 120
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "g0VcjM",
+                  "name": "Label",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "C7liDs",
+                      "name": "Nr",
+                      "fill": "$fg",
+                      "content": "01 — Halbe Stunde",
+                      "fontFamily": "JetBrains Mono",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "b2axny",
+                      "name": "Desc",
+                      "fill": "$muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Ein Kreis, zur Hälfte gefüllt: eine Uhr, die gerade läuft. Ruhig, funktioniert als App-Icon in 16 px.",
+                      "lineHeight": 1.45,
+                      "fontFamily": "Inter Tight",
+                      "fontSize": 15,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "zMMSJ",
+              "name": "Konzept 02",
+              "width": "fill_container",
+              "fill": "$surface",
+              "cornerRadius": 4,
+              "layout": "vertical",
+              "gap": 20,
+              "padding": 28,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "b0Nzc1",
+                  "name": "Stage",
+                  "width": "fill_container",
+                  "height": 300,
+                  "fill": "$bg",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "PQzhL",
+                      "name": "Mark Stempel-K",
+                      "width": 180,
+                      "height": 180,
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "rectangle",
+                          "id": "giIcm",
+                          "x": 30,
+                          "y": 20,
+                          "name": "Stem",
+                          "fill": "#F2EFE7",
+                          "width": 36,
+                          "height": 140
+                        },
+                        {
+                          "type": "path",
+                          "id": "Vov20",
+                          "x": 78,
+                          "y": 20,
+                          "name": "Play",
+                          "geometry": "M0 70l80-70 0 36-39 34 39 34 0 36z",
+                          "viewBox": [
+                            0,
+                            0,
+                            80,
+                            140
+                          ],
+                          "fill": "#D4FF3A",
+                          "width": 80,
+                          "height": 140
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "o5HGuI",
+                  "name": "Label",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "z6VRc",
+                      "name": "Nr",
+                      "fill": "$fg",
+                      "content": "02 — Stempel-K",
+                      "fontFamily": "JetBrains Mono",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Bv7dz",
+                      "name": "Desc",
+                      "fill": "$muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Stamm plus ein ausgeschnittener Pfeil: K und Start-Marker in einem.",
+                      "lineHeight": 1.45,
+                      "fontFamily": "Inter Tight",
+                      "fontSize": 15,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "I9ioE7",
+          "name": "Row 2",
+          "width": "fill_container",
+          "gap": 24,
+          "children": [
+            {
+              "type": "frame",
+              "id": "vxWF5",
+              "name": "Konzept 03",
+              "width": "fill_container",
+              "fill": "$surface",
+              "cornerRadius": 4,
+              "layout": "vertical",
+              "gap": 20,
+              "padding": 28,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "J2RzZK",
+                  "name": "Stage",
+                  "width": "fill_container",
+                  "height": 300,
+                  "fill": "$bg",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "KQfP0",
+                      "name": "Mark Zeitblöcke",
+                      "width": 180,
+                      "height": 180,
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "rectangle",
+                          "cornerRadius": 12,
+                          "id": "DrgAE",
+                          "x": 10,
+                          "y": 22,
+                          "name": "Bar 1",
+                          "fill": "#F2EFE7",
+                          "width": 140,
+                          "height": 24
+                        },
+                        {
+                          "type": "rectangle",
+                          "cornerRadius": 12,
+                          "id": "P4tbU",
+                          "x": 10,
+                          "y": 58,
+                          "name": "Bar 2",
+                          "fill": "#F2EFE7",
+                          "width": 100,
+                          "height": 24
+                        },
+                        {
+                          "type": "rectangle",
+                          "cornerRadius": 12,
+                          "id": "bzaua",
+                          "x": 10,
+                          "y": 94,
+                          "name": "Bar 3",
+                          "fill": "#F2EFE7",
+                          "width": 160,
+                          "height": 24
+                        },
+                        {
+                          "type": "rectangle",
+                          "cornerRadius": 12,
+                          "id": "wLBE3",
+                          "x": 10,
+                          "y": 130,
+                          "name": "Bar 4",
+                          "fill": "#D4FF3A",
+                          "width": 70,
+                          "height": 24
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "bWc2v",
+                  "name": "Label",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "lYXWx",
+                      "name": "Nr",
+                      "fill": "$fg",
+                      "content": "03 — Zeitblöcke",
+                      "fontFamily": "JetBrains Mono",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "K0zJ9",
+                      "name": "Desc",
+                      "fill": "$muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Gestapelte Balken unterschiedlicher Länge: erfasste Stunden pro Tag als Signet.",
+                      "lineHeight": 1.45,
+                      "fontFamily": "Inter Tight",
+                      "fontSize": 15,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Gf2jy",
+              "name": "Konzept 04",
+              "width": "fill_container",
+              "fill": "$surface",
+              "cornerRadius": 4,
+              "layout": "vertical",
+              "gap": 20,
+              "padding": 28,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "OD8Hg",
+                  "name": "Stage",
+                  "width": "fill_container",
+                  "height": 300,
+                  "fill": "$bg",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "r35LZ",
+                      "name": "Mark Sanduhr-a",
+                      "width": 180,
+                      "height": 180,
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "path",
+                          "id": "UsaHN",
+                          "x": 35,
+                          "y": 15,
+                          "name": "Glass",
+                          "geometry": "M0 0h110l-55 75 55 75h-110l55-75z",
+                          "viewBox": [
+                            0,
+                            0,
+                            110,
+                            150
+                          ],
+                          "fill": "#00000000",
+                          "width": 110,
+                          "height": 150,
+                          "stroke": "#F2EFE7",
+                          "strokeWidth": 10,
+                          "strokeLinejoin": "round"
+                        },
+                        {
+                          "type": "path",
+                          "id": "vwrXi",
+                          "x": 52,
+                          "y": 120,
+                          "name": "Sand",
+                          "geometry": "M38 0l38 38h-76z",
+                          "viewBox": [
+                            0,
+                            0,
+                            76,
+                            38
+                          ],
+                          "fill": "#D4FF3A",
+                          "width": 76,
+                          "height": 38
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "bcx6d",
+                  "name": "Label",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "kuI8Z",
+                      "name": "Nr",
+                      "fill": "$fg",
+                      "content": "04 — Sanduhr",
+                      "fontFamily": "JetBrains Mono",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "L49aD",
+                      "name": "Desc",
+                      "fill": "$muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Zwei Dreiecke, die Sand unten in Lime. Klassisch und sofort als Zeit lesbar, eher verspielt.",
+                      "lineHeight": 1.45,
+                      "fontFamily": "Inter Tight",
+                      "fontSize": 15,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "E5Ufg",
+          "name": "Row 3",
+          "width": "fill_container",
+          "gap": 24,
+          "children": [
+            {
+              "type": "frame",
+              "id": "UGHpC",
+              "name": "Konzept 05",
+              "width": "fill_container",
+              "fill": "$surface",
+              "cornerRadius": 4,
+              "layout": "vertical",
+              "gap": 20,
+              "padding": 28,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "caRJo",
+                  "name": "Stage",
+                  "width": "fill_container",
+                  "height": 300,
+                  "fill": "$bg",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "k6ROO",
+                      "name": "Wordmark",
+                      "gap": 4,
+                      "alignItems": "end",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "hRHQh",
+                          "name": "kala",
+                          "fill": "$fg",
+                          "content": "kala",
+                          "fontFamily": "Inter Tight",
+                          "fontSize": 120,
+                          "fontWeight": "700",
+                          "letterSpacing": -6
+                        },
+                        {
+                          "type": "frame",
+                          "id": "jBOod",
+                          "name": "Dot",
+                          "width": 22,
+                          "height": 22,
+                          "fill": "$accent",
+                          "cornerRadius": 11
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "S7EyKC",
+                  "name": "Label",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "juqeE",
+                      "name": "Nr",
+                      "fill": "$fg",
+                      "content": "05 — Wortmarke mit Laufpunkt",
+                      "fontFamily": "JetBrains Mono",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "y1OBn",
+                      "name": "Desc",
+                      "fill": "$muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Inter Tight, eng gesetzt. Der Lime-Punkt ist der Live-Indikator der laufenden Uhr und kann im UI animiert pulsieren.",
+                      "lineHeight": 1.45,
+                      "fontFamily": "Inter Tight",
+                      "fontSize": 15,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "z3oAck",
+              "name": "Konzept 06",
+              "width": "fill_container",
+              "fill": "$surface",
+              "cornerRadius": 4,
+              "layout": "vertical",
+              "gap": 20,
+              "padding": 28,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "hz70n",
+                  "name": "Stage",
+                  "width": "fill_container",
+                  "height": 300,
+                  "fill": "$accent",
+                  "gap": 28,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "fbiCQ",
+                      "name": "App Icon",
+                      "width": 150,
+                      "height": 150,
+                      "fill": "$bg",
+                      "cornerRadius": 34,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "xqeyx",
+                          "name": "Glyph",
+                          "fill": "$accent",
+                          "content": "k:",
+                          "fontFamily": "JetBrains Mono",
+                          "fontSize": 76,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "oRi2W",
+                      "name": "Mono wordmark",
+                      "fill": "$bg",
+                      "content": "kala",
+                      "fontFamily": "JetBrains Mono",
+                      "fontSize": 56,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "a2mzZ",
+                  "name": "Label",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "dB21t",
+                      "name": "Nr",
+                      "fill": "$fg",
+                      "content": "06 — Timecode",
+                      "fontFamily": "JetBrains Mono",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "k0WJV",
+                      "name": "Desc",
+                      "fill": "$muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Mono-Schrift aus dem UI, der Doppelpunkt eines Zeitstempels als Markenzeichen. Technisch, passt zum Export- und Tabellencharakter.",
+                      "lineHeight": 1.45,
+                      "fontFamily": "Inter Tight",
+                      "fontSize": 15,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "dJY1w",
+      "x": 0,
+      "y": 6392,
+      "name": "Logo · Timecode",
+      "width": 1680,
+      "fill": "$bg",
+      "layout": "vertical",
+      "gap": 40,
+      "padding": 80,
+      "children": [
+        {
+          "type": "frame",
+          "id": "iVZOS",
+          "name": "Header",
+          "layout": "vertical",
+          "gap": 10,
+          "children": [
+            {
+              "type": "text",
+              "id": "Pw95m",
+              "name": "Eyebrow",
+              "fill": "$accent",
+              "content": "KALA · LOGO FINAL",
+              "fontFamily": "JetBrains Mono",
+              "fontSize": 13,
+              "fontWeight": "normal",
+              "letterSpacing": 2
+            },
+            {
+              "type": "text",
+              "id": "WVOWO",
+              "name": "Title",
+              "fill": "$fg",
+              "content": "Timecode: k: als Icon, kala als Wortmarke",
+              "fontFamily": "Inter Tight",
+              "fontSize": 44,
+              "fontWeight": "600"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "YzrPr",
+          "name": "Lockups",
+          "width": "fill_container",
+          "gap": 24,
+          "children": [
+            {
+              "type": "frame",
+              "id": "ENlZk",
+              "name": "Lockup dark",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "lPC9E",
+                  "name": "Stage",
+                  "width": "fill_container",
+                  "height": 420,
+                  "fill": "$accent",
+                  "cornerRadius": 4,
+                  "gap": 36,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "dUnh2",
+                      "name": "Icon 120",
+                      "width": 160,
+                      "height": 160,
+                      "fill": "$bg",
+                      "cornerRadius": 36,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "i7kcqt",
+                          "name": "Glyph",
+                          "fill": "$accent",
+                          "content": "k:",
+                          "fontFamily": "JetBrains Mono",
+                          "fontSize": 80,
+                          "fontWeight": "700",
+                          "letterSpacing": -3
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "rLsYJ",
+                      "name": "Wordmark",
+                      "fill": "$bg",
+                      "content": "kala",
+                      "fontFamily": "JetBrains Mono",
+                      "fontSize": 128,
+                      "fontWeight": "700",
+                      "letterSpacing": -4
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "K2sXzB",
+                  "name": "Caption",
+                  "fill": "$muted",
+                  "content": "Lockup · Invers auf Lime",
+                  "fontFamily": "JetBrains Mono",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "NY3cB",
+          "name": "Icons & Wortmarke",
+          "width": "fill_container",
+          "gap": 24,
+          "children": [
+            {
+              "type": "frame",
+              "id": "NLtUV",
+              "name": "Icon Größen",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "ArPcC",
+                  "name": "Stage",
+                  "width": "fill_container",
+                  "height": 360,
+                  "fill": "$surface",
+                  "cornerRadius": 4,
+                  "gap": 40,
+                  "padding": [
+                    0,
+                    0,
+                    100,
+                    0
+                  ],
+                  "justifyContent": "center",
+                  "alignItems": "end",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "eiMZD",
+                      "name": "Icon 180",
+                      "width": 180,
+                      "height": 180,
+                      "fill": "$bg",
+                      "cornerRadius": 41,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "U42txq",
+                          "name": "Glyph",
+                          "fill": "$accent",
+                          "content": "k:",
+                          "fontFamily": "JetBrains Mono",
+                          "fontSize": 90,
+                          "fontWeight": "700",
+                          "letterSpacing": -3.6
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "n9uCp7",
+                      "name": "Icon 96",
+                      "width": 96,
+                      "height": 96,
+                      "fill": "$bg",
+                      "cornerRadius": 22,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Zl9yG",
+                          "name": "Glyph",
+                          "fill": "$accent",
+                          "content": "k:",
+                          "fontFamily": "JetBrains Mono",
+                          "fontSize": 48,
+                          "fontWeight": "700",
+                          "letterSpacing": -1.92
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "vS9e0",
+                      "name": "Icon 48",
+                      "width": 48,
+                      "height": 48,
+                      "fill": "$bg",
+                      "cornerRadius": 11,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "sV4Dt",
+                          "name": "Glyph",
+                          "fill": "$accent",
+                          "content": "k:",
+                          "fontFamily": "JetBrains Mono",
+                          "fontSize": 24,
+                          "fontWeight": "700",
+                          "letterSpacing": -0.96
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "OiQPA",
+                      "name": "Icon 24",
+                      "width": 24,
+                      "height": 24,
+                      "fill": "$bg",
+                      "cornerRadius": 5,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "lLtr8",
+                          "name": "Glyph",
+                          "fill": "$accent",
+                          "content": "k:",
+                          "fontFamily": "JetBrains Mono",
+                          "fontSize": 12,
+                          "fontWeight": "700",
+                          "letterSpacing": -0.48
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "ZpsMi",
+                  "name": "Caption",
+                  "fill": "$muted",
+                  "content": "App-Icon · 180 / 96 / 48 / 24 px",
+                  "fontFamily": "JetBrains Mono",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "LJ5Xk",
+              "name": "Icon Varianten",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "qgRQf",
+                  "name": "Stage",
+                  "width": "fill_container",
+                  "height": 360,
+                  "fill": "$surface",
+                  "cornerRadius": 4,
+                  "gap": 32,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "XQ4uz",
+                      "name": "Dunkel",
+                      "width": 140,
+                      "height": 140,
+                      "fill": "$bg",
+                      "cornerRadius": 32,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "eu07d",
+                          "name": "Glyph",
+                          "fill": "$accent",
+                          "content": "k:",
+                          "fontFamily": "JetBrains Mono",
+                          "fontSize": 70,
+                          "fontWeight": "700",
+                          "letterSpacing": -2.8000000000000003
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "BrNkB",
+                      "x": 261.33333333333337,
+                      "y": 110,
+                      "name": "Lime",
+                      "enabled": false,
+                      "width": 140,
+                      "height": 140,
+                      "fill": "$accent",
+                      "cornerRadius": 32,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Pt9Bn",
+                          "name": "Glyph",
+                          "fill": "$bg",
+                          "content": "k:",
+                          "fontFamily": "JetBrains Mono",
+                          "fontSize": 70,
+                          "fontWeight": "700",
+                          "letterSpacing": -2.8000000000000003
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "LN8rC",
+                      "x": 261.33333333333337,
+                      "y": 110,
+                      "name": "Hell",
+                      "enabled": false,
+                      "width": 140,
+                      "height": 140,
+                      "fill": "$fg",
+                      "cornerRadius": 32,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "xkmje",
+                          "name": "Glyph",
+                          "fill": "$bg",
+                          "content": "k:",
+                          "fontFamily": "JetBrains Mono",
+                          "fontSize": 70,
+                          "fontWeight": "700",
+                          "letterSpacing": -2.8000000000000003
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "gvIcL",
+                  "name": "Caption",
+                  "fill": "$muted",
+                  "content": "App-Icon · Dunkel",
+                  "fontFamily": "JetBrains Mono",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "CjpM1",
+              "name": "Wortmarke solo",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "rFBoI",
+                  "name": "Stage",
+                  "width": "fill_container",
+                  "height": 360,
+                  "fill": "$bg",
+                  "cornerRadius": 4,
+                  "stroke": "$line",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 36,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "ZqYeG",
+                      "name": "Wordmark",
+                      "fill": "$fg",
+                      "content": "kala",
+                      "fontFamily": "JetBrains Mono",
+                      "fontSize": 120,
+                      "fontWeight": "700",
+                      "letterSpacing": -3.5999999999999996
+                    },
+                    {
+                      "type": "text",
+                      "id": "DSZlE",
+                      "name": "Wordmark",
+                      "fill": "$muted",
+                      "content": "kala",
+                      "fontFamily": "JetBrains Mono",
+                      "fontSize": 48,
+                      "fontWeight": "700",
+                      "letterSpacing": -1.44
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "B1rOp",
+                  "name": "Caption",
+                  "fill": "$muted",
+                  "content": "Wortmarke · ohne Icon",
+                  "fontFamily": "JetBrains Mono",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "MCvOa",
+      "x": 0,
+      "y": 7670,
+      "name": "Icon Exports",
+      "width": 1400,
+      "height": 700,
+      "fill": "#22221F",
+      "layout": "none",
+      "children": [
+        {
+          "type": "frame",
+          "id": "FhJ6u",
+          "x": 40,
+          "y": 40,
+          "name": "icon-512",
+          "clip": true,
+          "width": 512,
+          "height": 512,
+          "fill": "#0F0F0D",
+          "cornerRadius": 115,
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "Z3FTfe",
+              "name": "Glyph",
+              "fill": "#D4FF3A",
+              "content": "k:",
+              "fontFamily": "JetBrains Mono",
+              "fontSize": 256,
+              "fontWeight": "700",
+              "letterSpacing": -10.24
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "xlZWA",
+          "x": 600,
+          "y": 40,
+          "name": "icon-512-maskable",
+          "clip": true,
+          "width": 512,
+          "height": 512,
+          "fill": "#0F0F0D",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "zdEw6",
+              "name": "Glyph",
+              "fill": "#D4FF3A",
+              "content": "k:",
+              "fontFamily": "JetBrains Mono",
+              "fontSize": 195,
+              "fontWeight": "700",
+              "letterSpacing": -10.24
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "GS0bM",
+          "x": 1160,
+          "y": 40,
+          "name": "icon-192",
+          "clip": true,
+          "width": 192,
+          "height": 192,
+          "fill": "#0F0F0D",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "IlBop",
+              "name": "Glyph",
+              "fill": "#D4FF3A",
+              "content": "k:",
+              "fontFamily": "JetBrains Mono",
+              "fontSize": 96,
+              "fontWeight": "700",
+              "letterSpacing": -3.84
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "fv5yi",
+          "x": 1160,
+          "y": 280,
+          "name": "favicon",
+          "clip": true,
+          "width": 64,
+          "height": 64,
+          "fill": "#0F0F0D",
+          "cornerRadius": 14,
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "N7QT3o",
+              "name": "Glyph",
+              "fill": "#D4FF3A",
+              "content": "k:",
+              "fontFamily": "JetBrains Mono",
+              "fontSize": 32,
+              "fontWeight": "700",
+              "letterSpacing": -1.28
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "vp52N",
+      "x": 1520,
+      "y": 7670,
+      "name": "og-image",
+      "clip": true,
+      "width": 1200,
+      "height": 630,
+      "fill": "#D4FF3A",
+      "layout": "vertical",
+      "padding": [
+        72,
+        80
+      ],
+      "justifyContent": "space_between",
+      "children": [
+        {
+          "type": "frame",
+          "id": "QLM33",
+          "name": "Lockup",
+          "gap": 28,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "R6EOB",
+              "name": "Icon",
+              "width": 140,
+              "height": 140,
+              "fill": "#0F0F0D",
+              "cornerRadius": 32,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "kWfpq",
+                  "name": "Glyph",
+                  "fill": "#D4FF3A",
+                  "content": "k:",
+                  "fontFamily": "JetBrains Mono",
+                  "fontSize": 70,
+                  "fontWeight": "700",
+                  "letterSpacing": -3
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "Acs1S",
+              "name": "Wordmark",
+              "fill": "#0F0F0D",
+              "content": "kala",
+              "fontFamily": "JetBrains Mono",
+              "fontSize": 112,
+              "fontWeight": "700",
+              "letterSpacing": -4
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "e6NH8W",
+          "name": "Bottom",
+          "width": "fill_container",
+          "justifyContent": "space_between",
+          "alignItems": "end",
+          "children": [
+            {
+              "type": "text",
+              "id": "e5ttf5",
+              "name": "Tagline",
+              "fill": "#0F0F0D",
+              "content": "Zeiterfassung &\nGehaltsrechner",
+              "lineHeight": 1.05,
+              "fontFamily": "Inter Tight",
+              "fontSize": 56,
+              "fontWeight": "600",
+              "letterSpacing": -1.5
+            },
+            {
+              "type": "text",
+              "id": "fuT3k",
+              "name": "Timecode",
+              "fill": "#0F0F0D99",
+              "content": "00:00:00",
+              "fontFamily": "JetBrains Mono",
+              "fontSize": 22,
+              "fontWeight": "normal"
+            }
+          ]
+        }
+      ]
     }
   ],
   "variables": {

@@ -1,5 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-	<rect x="8" y="8" width="112" height="112" rx="34" fill="#1e293b" />
-	<circle cx="64" cy="46" r="13" fill="#fb923c" />
-	<circle cx="64" cy="82" r="13" fill="none" stroke="#fb923c" stroke-width="7" />
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><defs><clipPath id="c1"><rect width="64" height="64" rx="14"/></clipPath></defs><g clip-path="url(#c1)"><rect width="64" height="64" rx="14" fill="#0f0f0d"/><path transform="translate(14 11)" d="M2.555 33v-23.359h4v12.664h2.797l4.273-6.907h4.492l-5.32 8.516 5.422 9.086h-4.578l-4.297-7.297h-2.789v7.297zM27.522 20.445q-1.336 0-2.157-.742-.82-.742-.82-1.945 0-1.219 .82-1.945 .821-.735 2.157-.735 1.343 0 2.156 .735 .82 .726 .82 1.945 0 1.203-.82 1.945-.813 .742-2.156 .742zM27.522 33.32q-1.336 0-2.157-.742-.82-.742-.82-1.937 0-1.219 .82-1.946 .821-.734 2.157-.734 1.343 0 2.156 .734 .82 .727 .82 1.946 0 1.195-.82 1.937-.813 .742-2.156 .742z" fill="#d4ff3a"/></g></svg>
