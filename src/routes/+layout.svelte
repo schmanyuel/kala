@@ -51,9 +51,15 @@
 		id="sidebar"
 		class="sticky top-0 z-10 flex shrink-0 flex-col gap-4 border-line bg-bg px-4 py-4 max-lg:border-b lg:h-screen lg:w-58 lg:gap-9 lg:border-r lg:px-5 lg:py-7"
 	>
-		<a href="/" class="flex items-center gap-2.5 px-1">
-			<span class="size-5.5 rounded-full bg-accent" aria-hidden="true"></span>
-			<span class="text-[19px] font-bold tracking-tight">kala</span>
+		<a
+			href="/"
+			aria-label="kala · Dashboard"
+			class="flex items-center justify-center gap-3 rounded-[4px] bg-accent px-4 py-3 text-ink transition hover:brightness-95 lg:py-5"
+		>
+			<img src="/favicon.svg" alt="" class="size-8 lg:size-10" width="40" height="40" />
+			<span class="font-mono text-[28px] leading-none font-bold tracking-[-0.03em] lg:text-[32px]"
+				>kala</span
+			>
 		</a>
 		<nav
 			class="-mx-1 flex gap-0.5 overflow-x-auto px-1 lg:flex-col lg:overflow-visible"
