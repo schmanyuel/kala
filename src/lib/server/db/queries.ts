@@ -156,6 +156,47 @@ export async function createManualEntry(data: {
 	});
 }
 
+/** A finished entry plus the todos checked off into it, for the edit form. */
+export async function getEntryForEdit(id: number) {
+	const entry = await db.query.timeEntries.findFirst({ where: eq(timeEntries.id, id) });
+	if (!entry || !entry.endTime) return null;
+	const linked = await db.query.todos.findMany({ where: eq(todos.entryId, id) });
+	return { ...entry, endTime: entry.endTime, linkedTodos: linked };
+}
+
+/** Updates a finished entry. Todos linked to it whose activity was removed go back to
+ *  open; newly picked todos (`todoIds`) get checked off and linked. */
+export async function updateEntry(
+	id: number,
+	data: {
+		jobId: number;
+		projectId: number | null;
+		startTime: Date;
+		endTime: Date;
+		activities: string[];
+		todoIds?: number[];
+	}
+) {
+	const { todoIds = [], ...values } = data;
+	await db.transaction(async (tx) => {
+		const linked = await tx.query.todos.findMany({ where: eq(todos.entryId, id) });
+		const reopen = linked.filter((t) => !values.activities.includes(t.text)).map((t) => t.id);
+		if (reopen.length) {
+			await tx.update(todos).set({ doneAt: null, entryId: null }).where(inArray(todos.id, reopen));
+		}
+		if (todoIds.length) {
+			await tx
+				.update(todos)
+				.set({ doneAt: new Date(), entryId: id })
+				.where(and(inArray(todos.id, todoIds), isNull(todos.doneAt)));
+		}
+		await tx
+			.update(timeEntries)
+			.set({ ...values, updatedAt: new Date() })
+			.where(eq(timeEntries.id, id));
+	});
+}
+
 export async function addActivity(entryId: number, text: string) {
 	await db
 		.update(timeEntries)

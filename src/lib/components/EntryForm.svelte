@@ -13,6 +13,7 @@
 	} from '@lucide/svelte';
 	import { addDays, startOfWeek } from '$lib/date';
 	import { formatCents, formatDuration, formatTime, toDatetimeLocal } from '$lib/format';
+	import { nearestDirection, roundDuration } from '$lib/rounding';
 	import type { PageData } from '../../routes/entry/$types';
 
 	let {
@@ -28,6 +29,11 @@
 	} = $props();
 
 	const QUICK = [30, 60, 90, 120];
+	const ROUND = [
+		{ step: 15, label: '¼ h' },
+		{ step: 30, label: '½ h' },
+		{ step: 60, label: '1 h' }
+	];
 	const pad = (n: number) => n.toString().padStart(2, '0');
 	const toMinutes = (t: string) => {
 		const [h, m] = t.split(':').map(Number);
@@ -37,11 +43,18 @@
 	const minutesOf = (d: Date) => d.getHours() * 60 + d.getMinutes();
 	const isoDate = (d: Date) => toDatetimeLocal(d).slice(0, 10);
 
-	let jobId = $state(0);
-	let projectId = $state('');
-	let start = $state('09:00');
-	let end = $state('10:00');
-	let items = $state<{ text: string; todoId?: number }[]>([]);
+	// Edit mode: prefilled from the entry. Read once, so refetches don't overwrite typing.
+	const editing = untrack(() => data.editing);
+	let jobId = $state(editing?.jobId ?? 0);
+	let projectId = $state(editing?.projectId ? String(editing.projectId) : '');
+	let start = $state(editing?.start ?? '09:00');
+	let end = $state(editing?.end ?? '10:00');
+	let items = $state<{ text: string; todoId?: number }[]>(
+		editing?.activities.map((text) => ({
+			text,
+			todoId: editing.linkedTodos.find((t) => t.text === text)?.id
+		})) ?? []
+	);
 	let draft = $state('');
 	let error = $state<string | null>(null);
 	let saving = $state(false);
@@ -55,6 +68,7 @@
 	// Only when the day changes, not on every refetch, so typing isn't overwritten.
 	$effect.pre(() => {
 		void data.date;
+		if (editing) return;
 		untrack(() => {
 			const last = data.dayEntries.findLast((e) => e.end);
 			const from = last?.end ? Math.ceil(minutesOf(new Date(last.end)) / 15) * 15 : 9 * 60;
@@ -106,6 +120,11 @@
 		hi = Math.max(hi, endMin);
 		return { lo: Math.floor(lo / 120) * 120, hi: Math.min(24 * 60, Math.ceil(hi / 120) * 120) };
 	});
+	// Duration rounded to the nearest step (same rule as the stop dialog), in minutes.
+	const rounded = (step: number) =>
+		roundDuration(duration * 60, step, nearestDirection(duration * 60, step)) / 60;
+	const hm = (min: number) => `${Math.floor(min / 60)}:${pad(min % 60)}`;
+
 	const pct = (min: number) => ((min - range.lo) / (range.hi - range.lo)) * 100;
 	const ticks = $derived(
 		Array.from({ length: (range.hi - range.lo) / 240 + 1 }, (_, i) => range.lo + i * 240)
@@ -144,7 +163,7 @@
 
 <form
 	method="POST"
-	action="/entry?/create"
+	action={editing ? '/entry?/update' : '/entry?/create'}
 	class="flex h-full min-h-0 flex-col"
 	use:enhance={({ cancel }) => {
 		addDraft();
@@ -164,6 +183,7 @@
 	}}
 >
 	<input type="hidden" name="date" value={data.date} />
+	{#if editing}<input type="hidden" name="id" value={editing.id} />{/if}
 	{#each items as item, i (i)}
 		<input type="hidden" name="activity" value={item.text} />
 		{#if item.todoId}<input type="hidden" name="todoId" value={item.todoId} />{/if}
@@ -173,7 +193,7 @@
 		<div class="flex flex-col gap-1.5">
 			<p class="eyebrow">{eyebrow}</p>
 			<h2 id="entry-sheet-title" class="text-xl font-semibold tracking-tight sm:text-2xl">
-				Eintrag nachtragen
+				{editing ? 'Eintrag bearbeiten' : 'Eintrag nachtragen'}
 			</h2>
 		</div>
 		<div class="flex items-center gap-1.5">
@@ -340,7 +360,7 @@
 						type="time"
 						name="start"
 						bind:value={start}
-						step="300"
+						step="60"
 						required
 						class="h-11 rounded-[10px] border border-line-strong bg-bg px-3 font-mono text-[15px] [color-scheme:dark] outline-none focus:border-accent"
 					/>
@@ -351,7 +371,7 @@
 						type="time"
 						name="end"
 						bind:value={end}
-						step="300"
+						step="60"
 						required
 						class="h-11 rounded-[10px] border border-line-strong bg-bg px-3 font-mono text-[15px] [color-scheme:dark] outline-none focus:border-accent"
 					/>
@@ -374,6 +394,26 @@
 						>Überschneidet sich mit einem Eintrag</span
 					>{/if}
 			</div>
+			{#if duration}
+				<div class="flex flex-wrap items-center gap-1.5" role="group" aria-label="Dauer runden">
+					<span class="mr-0.5 text-[11px] text-muted">Runden</span>
+					{#each ROUND as r (r.step)}
+						{@const target = rounded(r.step)}
+						<button
+							type="button"
+							aria-pressed={target === duration}
+							aria-label="Auf {r.label} runden: {hm(target)}"
+							onclick={() => (end = toHHMM(Math.min(startMin + target, 23 * 60 + 59)))}
+							class="flex items-baseline gap-1.5 rounded-full px-2.5 py-1 text-[11px] transition-colors {target ===
+							duration
+								? 'bg-raised text-fg'
+								: 'border border-line text-muted hover:border-muted hover:text-fg'}"
+						>
+							{r.label}{#if target !== duration}<span class="font-mono">→ {hm(target)}</span>{/if}
+						</button>
+					{/each}
+				</div>
+			{/if}
 		</div>
 
 		<section class="flex flex-col gap-2.5" aria-labelledby="activities-label">
@@ -442,7 +482,7 @@
 			{/if}
 		</section>
 
-		{#if data.templates.length}
+		{#if data.templates.length && !editing}
 			<div class="flex flex-wrap items-center gap-1.5">
 				<span class="flex items-center gap-1.5 text-xs text-muted"
 					><History size={13} /> Wie zuletzt:</span
@@ -475,7 +515,7 @@
 		class="flex items-center gap-4 border-t border-line px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-8 sm:py-4.5"
 	>
 		<div class="flex min-w-0 flex-1 flex-col gap-0.5">
-			<span class="font-mono text-[15px] font-medium tabular-nums">
+			<span class="font-mono text-[15px] font-medium whitespace-nowrap tabular-nums">
 				{formatDuration(
 					duration * 60
 				)}{#if rateCents}{` · ${formatCents((duration / 60) * rateCents)}`}{/if}
@@ -485,9 +525,12 @@
 		<button
 			type="submit"
 			disabled={saving || !duration}
-			class="flex h-12 items-center gap-2 rounded-full bg-accent px-6 text-sm font-semibold text-ink hover:brightness-95 disabled:opacity-50"
+			class="flex h-12 shrink-0 items-center gap-2 rounded-full bg-accent px-6 text-sm font-semibold text-ink hover:brightness-95 disabled:opacity-50"
 		>
-			<Check size={16} /> Eintrag speichern
+			<Check size={16} />
+			{#if editing}<span class="sm:hidden">Speichern</span><span class="max-sm:hidden"
+					>Änderungen speichern</span
+				>{:else}Eintrag speichern{/if}
 		</button>
 	</footer>
 </form>

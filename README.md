@@ -12,7 +12,8 @@ installierte App auf dem Handy.
 ## Funktionen
 
 - **Timer und Nachträge.** Ein Klick startet die Zeit für einen Job. Vergessene
-  Einträge trägst du mit Start, Ende und Notiz nach.
+  Einträge trägst du mit Start, Ende und Notiz nach. Fertige Einträge öffnest du per
+  Klick und änderst Zeiten, Job oder Tätigkeiten, mit Rundungsknöpfen für ¼, ½ und 1 h.
 - **Runden beim Stoppen.** Beim Stoppen schlägt kala die auf ¼, ½ oder 1 Stunde
   gerundete Zeit vor, ab- und aufgerundet mit dem jeweiligen Betrag. Den Schritt legst
   du in den Einstellungen fest.

@@ -34,7 +34,7 @@
 		</div>
 		<EntryForm
 			{data}
-			onDateChange={changeEntrySheetDate}
+			onDateChange={(date) => changeEntrySheetDate(date, data.editing?.id)}
 			onClose={close}
 			onSaved={async () => {
 				close();

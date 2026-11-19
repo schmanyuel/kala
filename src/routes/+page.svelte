@@ -2,7 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { Check, Pencil, Plus, Sparkles, Square, Play, Trash2, X } from '@lucide/svelte';
 	import { formatCents, formatDuration, formatTime } from '$lib/format';
-	import { openEntrySheet } from '$lib/entry-sheet';
+	import { editEntryHref, openEntrySheet } from '$lib/entry-sheet';
 	import { isoWeek } from '$lib/date';
 	import StopDialog from '$lib/components/StopDialog.svelte';
 	import { isRoundingStep } from '$lib/rounding';
@@ -577,32 +577,50 @@
 					<ul>
 						{#each data.todayEntries as entry (entry.id)}
 							{@const running = !entry.endTime}
-							<li class="group flex items-center gap-3.5 border-t border-line py-3.5">
-								<span class="h-9.5 w-[3px] shrink-0 rounded-sm" style:background={entry.job.color}
-								></span>
-								<div class="flex min-w-0 flex-1 flex-col gap-0.5">
-									<p class="truncate text-sm font-semibold">{entry.job.name}</p>
-									<p class="truncate text-[13px] text-muted">
-										{entry.note ??
-											(entry.activities.length
-												? entry.activities.join(' · ')
-												: (entry.project?.name ?? '—'))}
-									</p>
-								</div>
-								<div class="flex flex-col items-end gap-0.5">
-									<span
-										class="font-mono text-[15px] font-medium tabular-nums {running
-											? 'text-accent'
-											: ''}"
+							<li class="group flex items-center gap-2 border-t border-line py-2.5">
+								{#snippet entryBody()}
+									<span class="h-9.5 w-[3px] shrink-0 rounded-sm" style:background={entry.job.color}
+									></span>
+									<span class="flex min-w-0 flex-1 flex-col gap-0.5">
+										<span class="truncate text-sm font-semibold">{entry.job.name}</span>
+										<span class="truncate text-[13px] text-muted">
+											{entry.note ??
+												(entry.activities.length
+													? entry.activities.join(' · ')
+													: (entry.project?.name ?? '—'))}
+										</span>
+									</span>
+									<span class="flex flex-col items-end gap-0.5">
+										<span
+											class="font-mono text-[15px] font-medium tabular-nums {running
+												? 'text-accent'
+												: ''}"
+										>
+											{short(running ? elapsedSeconds : entrySeconds(entry))}
+										</span>
+										<span class="font-mono text-[11px] text-muted">
+											{formatTime(new Date(entry.startTime))} – {entry.endTime
+												? formatTime(new Date(entry.endTime))
+												: 'jetzt'}
+										</span>
+									</span>
+								{/snippet}
+								{#if running}
+									<div class="flex min-w-0 flex-1 items-center gap-3.5">{@render entryBody()}</div>
+								{:else}
+									<a
+										href={editEntryHref(entry.id)}
+										aria-label="Eintrag {entry.job.name} bearbeiten"
+										class="-mx-2 flex min-w-0 flex-1 items-center gap-3.5 rounded-lg px-2 py-1 transition-colors hover:bg-raised"
+										onclick={(e) => {
+											if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+											e.preventDefault();
+											openEntrySheet(undefined, entry.id);
+										}}
 									>
-										{short(running ? elapsedSeconds : entrySeconds(entry))}
-									</span>
-									<span class="font-mono text-[11px] text-muted">
-										{formatTime(new Date(entry.startTime))} – {entry.endTime
-											? formatTime(new Date(entry.endTime))
-											: 'jetzt'}
-									</span>
-								</div>
+										{@render entryBody()}
+									</a>
+								{/if}
 								<form
 									method="POST"
 									action="?/deleteEntry"

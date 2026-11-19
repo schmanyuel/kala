@@ -6,13 +6,19 @@
 	let { data }: { data: PageData } = $props();
 </script>
 
-<svelte:head><title>kala · Eintrag nachtragen</title></svelte:head>
+<svelte:head
+	><title>kala · {data.editing ? 'Eintrag bearbeiten' : 'Eintrag nachtragen'}</title></svelte:head
+>
 
 <div class="mx-auto flex max-w-[540px] flex-col rounded-2xl bg-surface">
 	<EntryForm
 		{data}
 		onDateChange={(date) =>
-			goto(`?date=${date}`, { replaceState: true, noScroll: true, keepFocus: true })}
+			goto(`?${data.editing ? `edit=${data.editing.id}&` : ''}date=${date}`, {
+				replaceState: true,
+				noScroll: true,
+				keepFocus: true
+			})}
 		onClose={() => goto('/')}
 		onSaved={() => goto('/')}
 	/>

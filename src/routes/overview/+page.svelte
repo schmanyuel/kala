@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { ChevronLeft, ChevronRight, Plus } from '@lucide/svelte';
-	import { openEntrySheet } from '$lib/entry-sheet';
+	import { editEntryHref, openEntrySheet } from '$lib/entry-sheet';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import { isoWeek } from '$lib/date';
 	import { formatCents, formatDuration, formatTime, toDatetimeLocal } from '$lib/format';
@@ -243,10 +243,20 @@
 							{@const start = Math.max(range.start, hourOf(new Date(entry.startTime), date))}
 							{@const end = Math.min(range.end, hourOf(endOf(entry), date))}
 							{@const running = !entry.endTime}
-							<div
+							<svelte:element
+								this={running ? 'div' : 'a'}
+								href={running ? undefined : editEntryHref(entry.id)}
+								onclick={running
+									? undefined
+									: (e: MouseEvent) => {
+											if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+											e.preventDefault();
+											openEntrySheet(undefined, entry.id);
+										}}
+								tabindex={running ? undefined : -1}
 								class="absolute top-5 flex h-9 min-w-1.5 items-center overflow-hidden px-2.5 text-xs font-semibold text-ink {running
 									? 'rounded-l-md'
-									: 'rounded-md'}"
+									: 'rounded-md transition hover:ring-2 hover:ring-fg/60 hover:brightness-110'}"
 								style:left="{pct(start)}%"
 								style:width="{pct(end) - pct(start)}%"
 								style:background={entry.job.color}
@@ -260,7 +270,7 @@
 										>{entry.job.name}{entry.note ? ` · ${entry.note}` : ''}</span
 									>
 								{/if}
-							</div>
+							</svelte:element>
 							{#if running}
 								<span
 									class="absolute top-3 h-13 w-0.5 bg-fg"
@@ -272,9 +282,21 @@
 						<ul class="sr-only">
 							{#each day.entries as entry (entry.id)}
 								<li>
-									{entry.job.name}, {formatTime(new Date(entry.startTime))} bis {entry.endTime
-										? formatTime(new Date(entry.endTime))
-										: 'jetzt'}{entry.note ? `, ${entry.note}` : ''}
+									{#if entry.endTime}
+										<a
+											href={editEntryHref(entry.id)}
+											class="focus:not-sr-only"
+											onclick={(e) => {
+												e.preventDefault();
+												openEntrySheet(undefined, entry.id);
+											}}
+											>{entry.job.name}, {formatTime(new Date(entry.startTime))} bis {formatTime(
+												new Date(entry.endTime)
+											)} bearbeiten</a
+										>
+									{:else}
+										{entry.job.name}, {formatTime(new Date(entry.startTime))} bis jetzt
+									{/if}
 								</li>
 							{/each}
 						</ul>
