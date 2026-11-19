@@ -35,3 +35,25 @@
 @utility field {
 	@apply rounded-lg border border-line bg-bg px-3 py-2 text-sm text-fg placeholder:text-muted focus:border-accent focus:outline-none;
 }
+
+/* Staggered entrance: content stays visible unless motion is welcome. */
+@media (prefers-reduced-motion: no-preference) {
+	.reveal {
+		animation: rise 560ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+		animation-delay: calc(var(--i, 0) * 70ms);
+	}
+	.reveal-item {
+		animation: rise 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+		animation-delay: calc(260ms + var(--i, 0) * 50ms);
+	}
+	main > *:not(:has(.reveal)) {
+		animation: rise 480ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+	}
+}
+
+@keyframes rise {
+	from {
+		opacity: 0;
+		translate: 0 16px;
+	}
+}

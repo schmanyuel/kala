@@ -15,7 +15,8 @@ import {
 	setTodoDone,
 	startTimer,
 	stopTimer,
-	summarizeEntries
+	summarizeEntries,
+	updateTodo
 } from '$lib/server/db/queries';
 import { addDays, endOfDay, endOfMonth, startOfDay, startOfMonth, startOfWeek } from '$lib/date';
 import { MINIJOB_LIMIT_CENTS } from '$lib/jobs';
@@ -154,6 +155,16 @@ export const actions: Actions = {
 		const id = Number(form.get('id'));
 		if (!id) return fail(400, { error: 'Aufgabe fehlt.' });
 		await setTodoDone(id, form.get('done') === '1');
+		return { success: true };
+	},
+
+	updateTodo: async ({ request }) => {
+		const form = await request.formData();
+		const id = Number(form.get('id'));
+		const text = String(form.get('text') ?? '').trim();
+		const jobIdRaw = String(form.get('jobId') ?? '');
+		if (!id || !text) return fail(400, { error: 'Aufgabe fehlt.' });
+		await updateTodo(id, text, jobIdRaw ? Number(jobIdRaw) : null);
 		return { success: true };
 	},
 

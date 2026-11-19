@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { Check, Plus, Sparkles, Square, Play, Trash2, X } from '@lucide/svelte';
+	import { Check, Pencil, Plus, Sparkles, Square, Play, Trash2, X } from '@lucide/svelte';
 	import { formatCents, formatDuration, formatTime } from '$lib/format';
 	import { openEntrySheet } from '$lib/entry-sheet';
 	import { isoWeek } from '$lib/date';
@@ -15,6 +15,12 @@
 	// New todos default to the job the timer is running for.
 	const initialTodoJob = () => (data.runningEntry ? String(data.runningEntry.jobId) : '');
 	let todoJobId = $state(initialTodoJob());
+	let editingTodoId = $state<number | null>(null);
+
+	const focusSelect = (node: HTMLInputElement) => {
+		node.focus();
+		node.select();
+	};
 
 	$effect(() => {
 		if (!data.runningEntry) return;
@@ -92,7 +98,7 @@
 <svelte:head><title>kala · Dashboard</title></svelte:head>
 
 <div class="flex flex-col gap-7">
-	<header id="topbar" class="flex flex-wrap items-center justify-between gap-4">
+	<header id="topbar" class="reveal flex flex-wrap items-center justify-between gap-4 [--i:0]">
 		<div class="flex flex-col gap-1">
 			<p class="eyebrow">{weekday} · KW {isoWeek(now)}</p>
 			<h1 class="text-[28px] font-semibold tracking-tight">{title}</h1>
@@ -119,7 +125,10 @@
 		</p>
 	{/if}
 
-	<section id="timer-hero" class="rounded-[20px] bg-accent px-6 py-7 text-ink sm:px-10 sm:py-9">
+	<section
+		id="timer-hero"
+		class="reveal rounded-[20px] bg-accent px-6 py-7 text-ink [--i:1] sm:px-10 sm:py-9"
+	>
 		{#if data.runningEntry}
 			<div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
 				<div class="flex min-w-0 flex-col gap-3.5">
@@ -265,9 +274,13 @@
 		{/if}
 	</section>
 
-	<div class="grid gap-7 xl:grid-cols-[1fr_420px]">
+	<div class="grid grid-cols-[minmax(0,1fr)] gap-7 xl:grid-cols-[minmax(0,1fr)_420px]">
 		<div class="flex min-w-0 flex-col gap-7">
-			<section id="stats" aria-label="Kennzahlen" class="grid border-y border-line sm:grid-cols-3">
+			<section
+				id="stats"
+				aria-label="Kennzahlen"
+				class="reveal grid border-y border-line [--i:2] sm:grid-cols-3"
+			>
 				{#each stats as stat, i (stat.label)}
 					<div
 						class="flex flex-col gap-1.5 py-5 {i
@@ -283,7 +296,7 @@
 				{/each}
 			</section>
 
-			<section id="week" class="flex flex-col gap-4">
+			<section id="week" class="reveal flex flex-col gap-4 [--i:3]">
 				<div class="flex flex-wrap items-center justify-between gap-3">
 					<h2 class="text-[17px] font-semibold">Diese Woche</h2>
 					<ul class="flex flex-wrap gap-4">
@@ -330,7 +343,7 @@
 			</section>
 		</div>
 
-		<section id="side-panel" class="flex flex-col rounded-2xl bg-surface p-5 sm:p-6">
+		<section id="side-panel" class="reveal flex flex-col rounded-2xl bg-surface p-5 [--i:4] sm:p-6">
 			<div class="flex gap-1 pb-4" role="tablist" aria-label="Aufgaben und Einträge">
 				{#each [{ key: 'todos', label: 'Aufgaben', count: openTodoCount }, { key: 'entries', label: 'Einträge heute', count: data.todayEntries.length }] as const as tab (tab.key)}
 					{@const active = activeTab === tab.key}
@@ -410,9 +423,12 @@
 								<span class="eyebrow text-[10px]">{group.name}</span>
 							</h3>
 							<ul>
-								{#each group.todos as todo (todo.id)}
+								{#each group.todos as todo, ti (todo.id)}
 									{@const done = !!todo.doneAt}
-									<li class="group flex items-center gap-3 border-t border-line py-2.5">
+									<li
+										style:--i={Math.min(ti, 6)}
+										class="reveal-item group flex items-center gap-3 border-t border-line py-2.5 has-[form[action$=updateTodo]]:items-start"
+									>
 										<form method="POST" action="?/toggleTodo" use:enhance>
 											<input type="hidden" name="id" value={todo.id} />
 											<input type="hidden" name="done" value={done ? '0' : '1'} />
@@ -428,35 +444,110 @@
 												{#if done}<Check size={12} strokeWidth={3} />{/if}
 											</button>
 										</form>
-										<div class="flex min-w-0 flex-1 flex-col gap-0.5">
-											<span class="text-sm {done ? 'text-muted line-through' : ''}"
-												>{todo.text}</span
+										{#if editingTodoId === todo.id}
+											<form
+												method="POST"
+												action="?/updateTodo"
+												use:enhance={() =>
+													async ({ update, result }) => {
+														await update({ reset: false });
+														if (result.type === 'success') editingTodoId = null;
+													}}
+												class="flex min-w-0 flex-1 flex-col gap-2"
 											>
-											{#if done}
-												<span class="text-xs {todo.entry ? 'text-accent' : 'text-muted'}">
-													{todo.entry
-														? todo.entry.id === data.runningEntry?.id
-															? '→ im laufenden Eintrag'
-															: `→ im Eintrag vom ${new Date(todo.entry.startTime).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}`
-														: 'erledigt'}
-												</span>
-											{/if}
-										</div>
-										<form
-											method="POST"
-											action="?/deleteTodo"
-											use:enhance
-											class="sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100 sm:focus-within:opacity-100"
-										>
-											<input type="hidden" name="id" value={todo.id} />
-											<button
-												type="submit"
-												aria-label="„{todo.text}“ löschen"
-												class="rounded-md p-1 text-muted hover:bg-raised hover:text-red-400"
+												<input type="hidden" name="id" value={todo.id} />
+												<input
+													type="text"
+													name="text"
+													required
+													value={todo.text}
+													use:focusSelect
+													onkeydown={(e) => {
+														if (e.key === 'Escape') {
+															e.preventDefault();
+															editingTodoId = null;
+														}
+													}}
+													aria-label="Aufgabe bearbeiten"
+													class="w-full min-w-0 rounded-lg border border-accent bg-bg px-2.5 py-1.5 text-sm outline-none"
+												/>
+												<div class="flex flex-wrap items-center gap-2">
+													<label
+														class="flex items-center gap-1.5 rounded-full bg-raised py-1 pr-1.5 pl-2.5"
+													>
+														<span class="sr-only">Job der Aufgabe</span>
+														<select
+															name="jobId"
+															value={todo.jobId === null ? '' : String(todo.jobId)}
+															class="max-w-32 bg-transparent text-[11px] outline-none"
+														>
+															<option value="">Ohne Job</option>
+															{#each data.jobs as job (job.id)}<option value={String(job.id)}
+																	>{job.name}</option
+																>{/each}
+														</select>
+													</label>
+													<span class="ml-auto flex items-center gap-1">
+														<button
+															type="button"
+															onclick={() => (editingTodoId = null)}
+															class="rounded-full px-3 py-1 text-xs text-muted hover:text-fg"
+															>Abbrechen</button
+														>
+														<button
+															type="submit"
+															class="rounded-full bg-accent px-3 py-1 text-xs font-semibold text-ink hover:brightness-95"
+															>Speichern</button
+														></span
+													>
+												</div>
+											</form>
+										{:else}
+											<div class="flex min-w-0 flex-1 flex-col gap-0.5">
+												<button
+													type="button"
+													ondblclick={() => (editingTodoId = todo.id)}
+													onclick={(e) => {
+														if (e.detail === 0) editingTodoId = todo.id;
+													}}
+													title="Doppelklick zum Bearbeiten"
+													class="cursor-text text-left text-sm break-words {done
+														? 'text-muted line-through'
+														: ''}">{todo.text}</button
+												>
+												{#if done}
+													<span class="text-xs {todo.entry ? 'text-accent' : 'text-muted'}">
+														{todo.entry
+															? todo.entry.id === data.runningEntry?.id
+																? '→ im laufenden Eintrag'
+																: `→ im Eintrag vom ${new Date(todo.entry.startTime).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}`
+															: 'erledigt'}
+													</span>
+												{/if}
+											</div>
+											<div
+												class="flex items-center sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100 sm:focus-within:opacity-100"
 											>
-												<Trash2 size={14} />
-											</button>
-										</form>
+												<button
+													type="button"
+													onclick={() => (editingTodoId = todo.id)}
+													aria-label="„{todo.text}“ bearbeiten"
+													class="rounded-md p-1 text-muted hover:bg-raised hover:text-fg"
+												>
+													<Pencil size={14} />
+												</button>
+												<form method="POST" action="?/deleteTodo" use:enhance>
+													<input type="hidden" name="id" value={todo.id} />
+													<button
+														type="submit"
+														aria-label="„{todo.text}“ löschen"
+														class="rounded-md p-1 text-muted hover:bg-raised hover:text-red-400"
+													>
+														<Trash2 size={14} />
+													</button>
+												</form>
+											</div>
+										{/if}
 									</li>
 								{/each}
 							</ul>

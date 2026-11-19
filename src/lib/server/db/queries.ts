@@ -201,6 +201,25 @@ export async function createTodo(text: string, jobId: number | null) {
 	await db.insert(todos).values({ text, jobId });
 }
 
+/** Renames a todo / moves it to another job. A todo already checked off into an entry
+ *  gets its activity text in that entry renamed along with it. */
+export async function updateTodo(id: number, text: string, jobId: number | null) {
+	await db.transaction(async (tx) => {
+		const todo = await tx.query.todos.findFirst({ where: eq(todos.id, id) });
+		if (!todo) return;
+		if (todo.entryId && todo.text !== text) {
+			await tx
+				.update(timeEntries)
+				.set({
+					activities: sql`array_replace(${timeEntries.activities}, ${todo.text}, ${text})`,
+					updatedAt: new Date()
+				})
+				.where(eq(timeEntries.id, todo.entryId));
+		}
+		await tx.update(todos).set({ text, jobId }).where(eq(todos.id, id));
+	});
+}
+
 export async function deleteTodo(id: number) {
 	await db.delete(todos).where(eq(todos.id, id));
 }
