@@ -1618,7 +1618,7 @@
       "name": "kala · Desktop",
       "width": 1440,
       "height": 1000,
-      "url": "localhost:5173/overview"
+      "url": "localhost:5173"
     },
     {
       "type": "browser",
@@ -1628,8 +1628,9 @@
       "name": "kala · Phone",
       "width": 390,
       "height": 1600,
-      "url": "localhost:5173/overview",
-      "deviceId": "phone"
+      "url": "localhost:5173",
+      "deviceId": "phone",
+      "scrollY": 928
     },
     {
       "type": "frame",
