@@ -56,7 +56,10 @@
 			aria-label="kala · Dashboard"
 			class="flex items-center justify-center gap-3 rounded-[4px] bg-accent px-4 py-3 text-ink transition hover:brightness-95 lg:py-5"
 		>
-			<img src="/favicon.svg" alt="" class="size-8 lg:size-10" width="40" height="40" />
+			<span
+				class="grid size-9 place-items-center rounded-[9px] bg-ink font-mono text-lg leading-none font-bold tracking-[-0.04em] text-accent lg:size-10 lg:rounded-[10px] lg:text-xl"
+				aria-hidden="true">k:</span
+			>
 			<span class="font-mono text-[28px] leading-none font-bold tracking-[-0.03em] lg:text-[32px]"
 				>kala</span
 			>
