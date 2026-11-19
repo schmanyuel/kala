@@ -24,7 +24,7 @@ check:
     npm run check
 
 backup:
-    cd docker/ && docker compose exec -T pg pg_dumpall -U postgres > ../kala.sql
+    cd docker/ && docker compose exec -T db pg_dumpall -U kala > ../kala.sql
 
-deploy: check
+deploy: check backup
     git pull && cd docker/ && docker compose up -d --build
