@@ -3,6 +3,7 @@
 	import { CircleCheck, Minus, Plus } from '@lucide/svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import { formatDuration } from '$lib/format';
+	import { ROUNDING_STEPS, nearestDirection, roundDuration, roundingLabel } from '$lib/rounding';
 	import type { ActionData, PageData } from './$types';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
@@ -17,6 +18,16 @@
 	const clamp = (h: number) => Math.min(168, Math.max(0, Math.round(h * 2) / 2));
 	const QUICK = [10, 20, 30, 40];
 
+	let rounding = $state(0);
+	$effect.pre(() => {
+		rounding = data.settings.stopRoundingMinutes;
+	});
+	const example = (step: number) => {
+		const s = roundDuration(167 * 60, step, nearestDirection(167 * 60, step));
+		return `${Math.floor(s / 3600)}:${String((s % 3600) / 60).padStart(2, '0')}`;
+	};
+	const roundingDirty = $derived(rounding !== data.settings.stopRoundingMinutes);
+
 	const system = $derived([
 		{ label: 'Datenbank', value: 'PostgreSQL · verbunden', ok: true },
 		{ label: 'Einträge gesamt', value: data.entryCount.toLocaleString('de-DE') },
@@ -28,7 +39,7 @@
 
 <div class="flex flex-col gap-7">
 	<PageHeader eyebrow="kala · self-hosted" title="Einstellungen">
-		{#if form?.success && !dirty}
+		{#if form?.success && !dirty && !roundingDirty}
 			<p
 				role="status"
 				class="flex items-center gap-2 rounded-full border border-accent/25 bg-accent/[0.08] px-3.5 py-2 text-[13px] font-medium text-accent"
@@ -118,6 +129,60 @@
 				<button
 					type="submit"
 					disabled={!dirty}
+					class="w-fit rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-ink hover:brightness-95 disabled:cursor-not-allowed disabled:bg-raised disabled:text-muted"
+				>
+					Speichern
+				</button>
+			</form>
+		</section>
+
+		<section
+			id="rundung"
+			class="grid gap-5 border-t border-line py-8 md:grid-cols-[240px_1fr] md:gap-12"
+		>
+			<div class="flex flex-col gap-1.5">
+				<h2 class="text-base font-semibold">Rundung beim Stoppen</h2>
+				<p class="text-[13px] leading-relaxed text-muted">
+					Vorauswahl im Stopp-Dialog. Gerundet wird auf den nächsten Schritt, ab- oder aufrunden
+					kannst du dort trotzdem jedes Mal selbst wählen.
+				</p>
+			</div>
+			<form
+				method="POST"
+				action="?/updateStopRounding"
+				use:enhance={() =>
+					async ({ update }) =>
+						update({ reset: false })}
+				class="flex flex-col gap-4"
+			>
+				<fieldset class="grid w-full max-w-sm grid-cols-4 gap-1 rounded-xl bg-surface p-1">
+					<legend class="sr-only">Rundungsschritt</legend>
+					{#each ROUNDING_STEPS as s (s)}
+						<label
+							class="cursor-pointer rounded-lg py-2.5 text-center text-sm transition-colors has-checked:bg-raised has-checked:font-semibold has-checked:text-fg has-focus-visible:outline-2 has-focus-visible:outline-accent {rounding ===
+							s
+								? ''
+								: 'text-muted hover:text-fg'}"
+						>
+							<input
+								type="radio"
+								name="stopRoundingMinutes"
+								value={s}
+								bind:group={rounding}
+								class="sr-only"
+							/>
+							{roundingLabel(s)}
+						</label>
+					{/each}
+				</fieldset>
+				<p class="text-[13px] text-muted">
+					{rounding
+						? `Beispiel: 2:47 gemessen → ${example(rounding)} vorausgewählt`
+						: 'Einträge werden exakt so gespeichert, wie sie gemessen wurden.'}
+				</p>
+				<button
+					type="submit"
+					disabled={!roundingDirty}
 					class="w-fit rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-ink hover:brightness-95 disabled:cursor-not-allowed disabled:bg-raised disabled:text-muted"
 				>
 					Speichern

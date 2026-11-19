@@ -4,6 +4,8 @@
 	import { formatCents, formatDuration, formatTime } from '$lib/format';
 	import { openEntrySheet } from '$lib/entry-sheet';
 	import { isoWeek } from '$lib/date';
+	import StopDialog from '$lib/components/StopDialog.svelte';
+	import { isRoundingStep } from '$lib/rounding';
 	import type { ActionData, PageData } from './$types';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
@@ -16,6 +18,7 @@
 	const initialTodoJob = () => (data.runningEntry ? String(data.runningEntry.jobId) : '');
 	let todoJobId = $state(initialTodoJob());
 	let editingTodoId = $state<number | null>(null);
+	let stopOpen = $state(false);
 
 	const focusSelect = (node: HTMLInputElement) => {
 		node.focus();
@@ -203,9 +206,14 @@
 							>
 						</div>
 					{/if}
+					<!-- Without JS this stops exactly; with JS the button opens the rounding dialog. -->
 					<form method="POST" action="?/stopTimer" use:enhance>
 						<button
 							type="submit"
+							onclick={(e) => {
+								e.preventDefault();
+								stopOpen = true;
+							}}
 							class="flex items-center gap-2.5 rounded-full bg-ink px-7 py-4 text-base font-semibold text-fg hover:bg-raised"
 						>
 							<Square size={14} class="fill-accent text-accent" /> Stopp
@@ -622,3 +630,14 @@
 		</section>
 	</div>
 </div>
+
+{#if stopOpen && data.runningEntry}
+	<StopDialog
+		startTime={new Date(data.runningEntry.startTime)}
+		jobName={data.runningEntry.job.name}
+		{elapsedSeconds}
+		rateCents={data.runningRateCents}
+		defaultStep={isRoundingStep(data.stopRoundingMinutes) ? data.stopRoundingMinutes : 0}
+		onClose={() => (stopOpen = false)}
+	/>
+{/if}

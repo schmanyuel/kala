@@ -13,6 +13,9 @@ installierte App auf dem Handy.
 
 - **Timer und Nachträge.** Ein Klick startet die Zeit für einen Job. Vergessene
   Einträge trägst du mit Start, Ende und Notiz nach.
+- **Runden beim Stoppen.** Beim Stoppen schlägt kala die auf ¼, ½ oder 1 Stunde
+  gerundete Zeit vor, ab- und aufgerundet mit dem jeweiligen Betrag. Den Schritt legst
+  du in den Einstellungen fest.
 - **Tätigkeitsbericht.** Jeder Eintrag sammelt, was du gemacht hast. Hakst du eine
   Aufgabe ab, landet sie im laufenden Eintrag.
 - **Aufgaben pro Job.** Eine kleine To-do-Liste neben dem Timer, nach Job gruppiert

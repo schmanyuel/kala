@@ -1,6 +1,12 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { countEntries, getSettings, updateWeeklyTargetHours } from '$lib/server/db/queries';
+import {
+	countEntries,
+	getSettings,
+	updateStopRounding,
+	updateWeeklyTargetHours
+} from '$lib/server/db/queries';
+import { isRoundingStep } from '$lib/rounding';
 import { version } from '../../../package.json';
 
 export const load: PageServerLoad = async () => {
@@ -16,6 +22,14 @@ export const actions: Actions = {
 			return fail(400, { error: 'Ungültige Stundenzahl.' });
 		}
 		await updateWeeklyTargetHours(hours);
+		return { success: true };
+	},
+
+	updateStopRounding: async ({ request }) => {
+		const form = await request.formData();
+		const minutes = Number(form.get('stopRoundingMinutes'));
+		if (!isRoundingStep(minutes)) return fail(400, { error: 'Ungültige Rundung.' });
+		await updateStopRounding(minutes);
 		return { success: true };
 	}
 };

@@ -1,6 +1,7 @@
 import { and, count, desc, eq, gte, inArray, isNull, lte, or, sql } from 'drizzle-orm';
 import { db } from './index';
 import { jobs, projects, settings, timeEntries, todos, wageRates } from './schema';
+import { roundDuration, type RoundingDirection } from '$lib/rounding';
 
 export async function listJobs() {
 	return db.query.jobs.findMany({
@@ -109,12 +110,24 @@ export async function startTimer(jobId: number, projectId: number | null, note: 
 	return entry;
 }
 
-export async function stopTimer() {
+/** Stops the running timer. With a rounding step the booked duration is rounded and the
+ *  end time set to start + rounded duration (rounding up may put the end slightly ahead). */
+export async function stopTimer(
+	rounding: { step: number; direction: RoundingDirection } = { step: 0, direction: 'down' }
+) {
 	const running = await getRunningEntry();
 	if (!running) throw new Error('Kein Timer läuft.');
+	const now = new Date();
+	const start = new Date(running.startTime).getTime();
+	const seconds = Math.max(0, (now.getTime() - start) / 1000);
+	// Computed in SQL: start_time has microsecond precision, a JS Date would truncate it
+	// and leave the booked duration a hair under the rounded value (e.g. 2:44:59.999).
+	const endTime = rounding.step
+		? sql`${timeEntries.startTime} + make_interval(secs => ${roundDuration(seconds, rounding.step, rounding.direction)})`
+		: now;
 	const [entry] = await db
 		.update(timeEntries)
-		.set({ endTime: new Date(), updatedAt: new Date() })
+		.set({ endTime, updatedAt: now })
 		.where(eq(timeEntries.id, running.id))
 		.returning();
 	return entry;
@@ -325,5 +338,15 @@ export async function updateWeeklyTargetHours(hours: number) {
 		.onConflictDoUpdate({
 			target: settings.id,
 			set: { weeklyTargetHours: hours.toFixed(2), updatedAt: new Date() }
+		});
+}
+
+export async function updateStopRounding(minutes: number) {
+	await db
+		.insert(settings)
+		.values({ id: 1, stopRoundingMinutes: minutes })
+		.onConflictDoUpdate({
+			target: settings.id,
+			set: { stopRoundingMinutes: minutes, updatedAt: new Date() }
 		});
 }

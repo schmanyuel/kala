@@ -1,0 +1,1 @@
+ALTER TABLE "settings" ADD COLUMN "stop_rounding_minutes" integer DEFAULT 15 NOT NULL;

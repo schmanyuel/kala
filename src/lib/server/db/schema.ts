@@ -78,6 +78,8 @@ export const settings = pgTable('settings', {
 	weeklyTargetHours: numeric('weekly_target_hours', { precision: 5, scale: 2 })
 		.notNull()
 		.default('40'),
+	/** Rounding step preselected when stopping the timer (0 = exact). */
+	stopRoundingMinutes: integer('stop_rounding_minutes').notNull().default(15),
 	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
 });
 

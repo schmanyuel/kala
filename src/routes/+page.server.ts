@@ -20,6 +20,7 @@ import {
 } from '$lib/server/db/queries';
 import { addDays, endOfDay, endOfMonth, startOfDay, startOfMonth, startOfWeek } from '$lib/date';
 import { MINIJOB_LIMIT_CENTS } from '$lib/jobs';
+import { isRoundingStep } from '$lib/rounding';
 
 export const load: PageServerLoad = async () => {
 	const now = new Date();
@@ -79,6 +80,7 @@ export const load: PageServerLoad = async () => {
 		monthSummary,
 		week,
 		weeklyTargetHours: Number(settings.weeklyTargetHours),
+		stopRoundingMinutes: settings.stopRoundingMinutes,
 		minijob: jobs.some((j) => j.isMinijob)
 			? { grossCents: minijobSummary.totalGrossCents, limitCents: MINIJOB_LIMIT_CENTS }
 			: null
@@ -104,9 +106,12 @@ export const actions: Actions = {
 		return { success: true };
 	},
 
-	stopTimer: async () => {
+	stopTimer: async ({ request }) => {
+		const form = await request.formData();
+		const step = Number(form.get('step') ?? 0);
+		const direction = form.get('direction') === 'up' ? 'up' : 'down';
 		try {
-			await stopTimer();
+			await stopTimer({ step: isRoundingStep(step) ? step : 0, direction });
 		} catch (err) {
 			return fail(400, {
 				error: err instanceof Error ? err.message : 'Timer konnte nicht gestoppt werden.'
