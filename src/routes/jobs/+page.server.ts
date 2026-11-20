@@ -1,4 +1,4 @@
-import { fail } from '@sveltejs/kit';
+import { failT } from '$lib/server/fail';
 import type { Actions, PageServerLoad } from './$types';
 import {
 	addWageRate,
@@ -64,9 +64,9 @@ export const actions: Actions = {
 		const colorRaw = String(form.get('color') ?? '');
 		const color = JOB_COLORS.includes(colorRaw) ? colorRaw : JOB_COLORS[0];
 
-		if (!name) return fail(400, { error: 'Name fehlt.' });
+		if (!name) return failT(400, 'Name is missing.');
 		const hourlyRateCents = parseEuroToCents(hourlyRateRaw);
-		if (hourlyRateCents === null) return fail(400, { error: 'Ungültiger Stundenlohn.' });
+		if (hourlyRateCents === null) return failT(400, 'Invalid hourly rate.');
 
 		await createJob({ name, color, hourlyRateCents, isMinijob });
 		return { success: true };
@@ -78,12 +78,12 @@ export const actions: Actions = {
 		const hourlyRateRaw = String(form.get('hourlyRate') ?? '');
 		const validFromRaw = String(form.get('validFrom') ?? '');
 
-		if (!jobId) return fail(400, { error: 'Job fehlt.' });
+		if (!jobId) return failT(400, 'Job is missing.');
 		const hourlyRateCents = parseEuroToCents(hourlyRateRaw);
-		if (hourlyRateCents === null) return fail(400, { error: 'Ungültiger Stundenlohn.' });
+		if (hourlyRateCents === null) return failT(400, 'Invalid hourly rate.');
 
 		const validFrom = validFromRaw ? new Date(`${validFromRaw}T00:00`) : new Date();
-		if (isNaN(validFrom.getTime())) return fail(400, { error: 'Ungültiges Datum.' });
+		if (isNaN(validFrom.getTime())) return failT(400, 'Invalid date.');
 		await addWageRate(jobId, hourlyRateCents, validFrom);
 		return { success: true };
 	},
@@ -92,8 +92,8 @@ export const actions: Actions = {
 		const form = await request.formData();
 		const jobId = Number(form.get('jobId'));
 		const name = String(form.get('name') ?? '').trim();
-		if (!jobId) return fail(400, { error: 'Job fehlt.' });
-		if (!name) return fail(400, { error: 'Projektname fehlt.' });
+		if (!jobId) return failT(400, 'Job is missing.');
+		if (!name) return failT(400, 'Project name is missing.');
 		await createProject(jobId, name);
 		return { success: true };
 	},
@@ -101,7 +101,7 @@ export const actions: Actions = {
 	archiveJob: async ({ request }) => {
 		const form = await request.formData();
 		const jobId = Number(form.get('jobId'));
-		if (!jobId) return fail(400, { error: 'Job fehlt.' });
+		if (!jobId) return failT(400, 'Job is missing.');
 		await archiveJob(jobId);
 		return { success: true };
 	},
@@ -109,7 +109,7 @@ export const actions: Actions = {
 	unarchiveJob: async ({ request }) => {
 		const form = await request.formData();
 		const jobId = Number(form.get('jobId'));
-		if (!jobId) return fail(400, { error: 'Job fehlt.' });
+		if (!jobId) return failT(400, 'Job is missing.');
 		await unarchiveJob(jobId);
 		return { success: true };
 	}

@@ -201,5 +201,46 @@ export const de: Record<string, string> = {
 	'Hours per calendar week': 'Stunden pro Kalenderwoche',
 	Hours: 'Stunden',
 	'Hours per job': 'Stunden pro Job',
-	'No entries this month yet.': 'Noch keine Einträge in diesem Monat.'
+	'No entries this month yet.': 'Noch keine Einträge in diesem Monat.',
+	'Name is missing.': 'Name fehlt.',
+	'Invalid hourly rate.': 'Ungültiger Stundenlohn.',
+	'Job is missing.': 'Job fehlt.',
+	'Invalid date.': 'Ungültiges Datum.',
+	'Project name is missing.': 'Projektname fehlt.',
+	'{active} active · {archived} archived': '{active} aktiv · {archived} archiviert',
+	'from the beginning': 'von Anfang an',
+	Jobs: 'Jobs',
+	Archive: 'Archiv',
+	'Archived jobs': 'Archivierte Jobs',
+	Archived: 'Archiviert',
+	Restore: 'Wiederherstellen',
+	'German mini-job with a monthly earnings cap':
+		'Minijob (deutsche geringfügige Beschäftigung mit monatlicher Verdienstgrenze)',
+	'Change rate': 'Lohn ändern',
+	'Archive {job}': '{job} archivieren',
+	'Hourly rate': 'Stundenlohn',
+	'Hours {month}': 'Stunden {month}',
+	'{percent} % of the Minijob limit ({limit}) in {month}':
+		'{percent} % der Minijob-Grenze ({limit}) im {month}',
+	'New hourly rate': 'Neuer Stundenlohn',
+	'Valid from': 'Gültig ab',
+	'Save rate': 'Lohn speichern',
+	'Rate history': 'Lohnverlauf',
+	'from {date}': 'ab {date}',
+	'No hourly rate set.': 'Kein Stundenlohn hinterlegt.',
+	Projects: 'Projekte',
+	'Name of the new project': 'Name des neuen Projekts',
+	'Project name': 'Projektname',
+	'Create project': 'Projekt anlegen',
+	'No jobs yet. Create your first one on the right.':
+		'Noch keine Jobs angelegt. Leg rechts deinen ersten an.',
+	'Create a new job': 'Neuen Job anlegen',
+	'A position with an hourly rate, e.g. main job or Minijob.':
+		'Anstellung mit Stundenlohn, z. B. Hauptjob oder Minijob.',
+	Name: 'Name',
+	'e.g. Agency working student': 'z. B. Werkstudent Agentur',
+	Color: 'Farbe',
+	'Color {color}': 'Farbe {color}',
+	'German mini-job with a monthly earnings cap. Counts towards the limit ({limit} / month)':
+		'Zählt zur Minijob-Grenze ({limit} / Monat)'
 };

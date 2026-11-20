@@ -11,6 +11,7 @@
 	} from '@lucide/svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import { formatCents, formatDuration } from '$lib/format';
+	import { locale, t } from '$lib/i18n';
 	import { JOB_COLORS, MINIJOB_LIMIT_CENTS } from '$lib/jobs';
 	import type { ActionData, PageData } from './$types';
 
@@ -21,17 +22,22 @@
 	let showArchive = $state(false);
 
 	const monthShort = $derived(
-		new Date(data.monthStart).toLocaleDateString('de-DE', { month: 'short' }).replace('.', '')
+		new Date(data.monthStart).toLocaleDateString(locale(), { month: 'short' }).replace('.', '')
 	);
-	const eyebrow = $derived(`${data.jobs.length} aktiv · ${data.archived.length} archiviert`);
+	const eyebrow = $derived(
+		t('{active} active · {archived} archived', {
+			active: data.jobs.length,
+			archived: data.archived.length
+		})
+	);
 	const defaultColor = $derived(
 		JOB_COLORS.find((c) => !data.jobs.some((j) => j.color.toLowerCase() === c.toLowerCase())) ??
 			JOB_COLORS[0]
 	);
 
 	const day = (d: Date) =>
-		new Date(d).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-	const since = (d: Date) => (new Date(d).getFullYear() <= 1970 ? 'von Anfang an' : day(d));
+		new Date(d).toLocaleDateString(locale(), { day: '2-digit', month: '2-digit', year: 'numeric' });
+	const since = (d: Date) => (new Date(d).getFullYear() <= 1970 ? t('from the beginning') : day(d));
 
 	// Close the inline forms once their action went through.
 	const closeOnSuccess =
@@ -45,10 +51,10 @@
 		};
 </script>
 
-<svelte:head><title>kala · Jobs</title></svelte:head>
+<svelte:head><title>kala · {t('Jobs')}</title></svelte:head>
 
 <div class="flex flex-col gap-7">
-	<PageHeader {eyebrow} title="Jobs">
+	<PageHeader {eyebrow} title={t('Jobs')}>
 		{#if data.archived.length}
 			<button
 				type="button"
@@ -59,7 +65,8 @@
 				aria-controls="archive"
 				onclick={() => (showArchive = !showArchive)}
 			>
-				<Archive size={15} /> Archiv ({data.archived.length})
+				<Archive size={15} />
+				{t('Archive')} ({data.archived.length})
 			</button>
 		{/if}
 	</PageHeader>
@@ -78,10 +85,10 @@
 			{#if showArchive && data.archived.length}
 				<section
 					id="archive"
-					aria-label="Archivierte Jobs"
+					aria-label={t('Archived jobs')}
 					class="rounded-2xl border border-line p-5"
 				>
-					<h2 class="pb-3 eyebrow">Archiviert</h2>
+					<h2 class="pb-3 eyebrow">{t('Archived')}</h2>
 					<ul>
 						{#each data.archived as job (job.id)}
 							<li class="flex items-center gap-3 border-t border-line py-3">
@@ -93,7 +100,8 @@
 										type="submit"
 										class="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] text-muted transition-colors hover:bg-raised hover:text-fg"
 									>
-										<ArchiveRestore size={14} /> Wiederherstellen
+										<ArchiveRestore size={14} />
+										{t('Restore')}
 									</button>
 								</form>
 							</li>
@@ -119,7 +127,7 @@
 						{#if job.isMinijob}
 							<span
 								class="rounded bg-accent/10 px-1.5 py-0.5 font-mono text-[10px] tracking-widest text-accent uppercase"
-								>Minijob</span
+								title={t('German mini-job with a monthly earnings cap')}>Minijob</span
 							>
 						{/if}
 						<div class="ml-auto flex items-center gap-1">
@@ -131,15 +139,16 @@
 								aria-expanded={editing}
 								onclick={() => (showNewRateFor = editing ? null : job.id)}
 							>
-								<Pencil size={14} /> Lohn ändern
+								<Pencil size={14} />
+								{t('Change rate')}
 							</button>
 							<form method="POST" action="?/archiveJob" use:enhance>
 								<input type="hidden" name="jobId" value={job.id} />
 								<button
 									type="submit"
 									class="grid size-9 place-items-center rounded-full text-muted transition-colors hover:bg-raised hover:text-fg"
-									aria-label="{job.name} archivieren"
-									title="Archivieren"
+									aria-label={t('Archive {job}', { job: job.name })}
+									title={t('Archive')}
 								>
 									<Archive size={16} />
 								</button>
@@ -148,7 +157,7 @@
 					</div>
 
 					<dl class="grid grid-cols-3">
-						{#each [{ label: 'Stundenlohn', value: job.currentRateCents !== null ? `${formatCents(job.currentRateCents)}/h` : '—' }, { label: `Stunden ${monthShort}.`, value: formatDuration(job.month.totalSeconds) }, { label: `Brutto ${monthShort}.`, value: formatCents(job.month.totalGrossCents) }] as stat, i (stat.label)}
+						{#each [{ label: t('Hourly rate'), value: job.currentRateCents !== null ? `${formatCents(job.currentRateCents)}/h` : '—' }, { label: t( 'Hours {month}', { month: `${monthShort}.` } ), value: formatDuration(job.month.totalSeconds) }, { label: t( 'Gross {month}', { month: `${monthShort}.` } ), value: formatCents(job.month.totalGrossCents) }] as stat, i (stat.label)}
 							<div
 								class="flex min-w-0 flex-col gap-1.5 {i
 									? 'border-l border-line pl-3 sm:pl-6'
@@ -172,9 +181,11 @@
 								></div>
 							</div>
 							<p class="text-xs text-muted">
-								{Math.round(share)} % der Minijob-Grenze ({formatCents(MINIJOB_LIMIT_CENTS)}) im {new Date(
-									data.monthStart
-								).toLocaleDateString('de-DE', { month: 'long' })}
+								{t('{percent} % of the Minijob limit ({limit}) in {month}', {
+									percent: Math.round(share),
+									limit: formatCents(MINIJOB_LIMIT_CENTS),
+									month: new Date(data.monthStart).toLocaleDateString(locale(), { month: 'long' })
+								})}
 							</p>
 						</div>
 					{/if}
@@ -188,7 +199,7 @@
 						>
 							<input type="hidden" name="jobId" value={job.id} />
 							<label class="flex w-44 flex-col gap-2">
-								<span class="text-xs text-muted">Neuer Stundenlohn</span>
+								<span class="text-xs text-muted">{t('New hourly rate')}</span>
 								<span
 									class="flex h-10.5 items-center rounded-[10px] border border-line-strong px-3.5 focus-within:border-accent"
 								>
@@ -198,15 +209,18 @@
 										inputmode="decimal"
 										required
 										placeholder={job.currentRateCents !== null
-											? (job.currentRateCents / 100).toFixed(2).replace('.', ',')
-											: '14,00'}
+											? (job.currentRateCents / 100).toLocaleString(locale(), {
+													minimumFractionDigits: 2,
+													maximumFractionDigits: 2
+												})
+											: (14).toLocaleString(locale(), { minimumFractionDigits: 2 })}
 										class="w-full min-w-0 bg-transparent font-mono text-[15px] outline-none placeholder:text-muted/60"
 									/>
 									<span class="text-[13px] text-muted">€/h</span>
 								</span>
 							</label>
 							<label class="flex w-48 flex-col gap-2">
-								<span class="text-xs text-muted">Gültig ab</span>
+								<span class="text-xs text-muted">{t('Valid from')}</span>
 								<span
 									class="flex h-10.5 items-center gap-2 rounded-[10px] border border-line-strong px-3.5 focus-within:border-accent"
 								>
@@ -224,13 +238,14 @@
 									class="h-10.5 px-4 text-[13px] font-medium text-muted hover:text-fg"
 									onclick={() => (showNewRateFor = null)}
 								>
-									Abbrechen
+									{t('Cancel')}
 								</button>
 								<button
 									type="submit"
 									class="flex h-10.5 items-center gap-2 rounded-full bg-accent px-4.5 text-[13px] font-semibold text-ink hover:brightness-95"
 								>
-									<Check size={15} /> Lohn speichern
+									<Check size={15} />
+									{t('Save rate')}
 								</button>
 							</div>
 						</form>
@@ -238,14 +253,16 @@
 
 					<div class="flex flex-col gap-6 border-t border-line pt-5 sm:flex-row sm:gap-8">
 						<div class="flex min-w-0 flex-1 flex-col gap-2.5">
-							<h3 class="eyebrow text-[10px]">Lohnverlauf</h3>
+							<h3 class="eyebrow text-[10px]">{t('Rate history')}</h3>
 							<ol class="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-xs">
 								{#if job.upcomingRate}
 									<li class="flex items-center gap-1.5">
 										<span class="font-mono text-accent"
 											>{formatCents(job.upcomingRate.hourlyRateCents)}</span
 										>
-										<span class="text-muted">ab {day(job.upcomingRate.validFrom)}</span>
+										<span class="text-muted"
+											>{t('from {date}', { date: day(job.upcomingRate.validFrom) })}</span
+										>
 									</li>
 									<li aria-hidden="true"><ChevronLeft size={12} class="text-line-strong" /></li>
 								{/if}
@@ -260,16 +277,16 @@
 										<span class={i ? 'text-muted/60' : 'text-muted'}
 											>{i || new Date(rate.validFrom).getFullYear() <= 1970
 												? since(rate.validFrom)
-												: `seit ${since(rate.validFrom)}`}</span
+												: t('since {date}', { date: since(rate.validFrom) })}</span
 										>
 									</li>
 								{:else}
-									<li class="text-muted">Kein Stundenlohn hinterlegt.</li>
+									<li class="text-muted">{t('No hourly rate set.')}</li>
 								{/each}
 							</ol>
 						</div>
 						<div class="flex flex-col gap-2.5">
-							<h3 class="eyebrow text-[10px]">Projekte</h3>
+							<h3 class="eyebrow text-[10px]">{t('Projects')}</h3>
 							<div class="flex flex-wrap items-center gap-1.5">
 								{#each job.projects as project (project.id)}
 									<span class="rounded-full bg-raised px-2.5 py-1 text-xs">{project.name}</span>
@@ -288,14 +305,14 @@
 											name="name"
 											required
 											autofocus
-											aria-label="Name des neuen Projekts"
-											placeholder="Projektname"
+											aria-label={t('Name of the new project')}
+											placeholder={t('Project name')}
 											class="w-32 rounded-full border border-accent bg-transparent px-2.5 py-1 text-xs outline-none"
 										/>
 										<button
 											type="submit"
 											class="grid size-6.5 place-items-center rounded-full bg-accent text-ink"
-											aria-label="Projekt anlegen"
+											aria-label={t('Create project')}
 										>
 											<Check size={13} />
 										</button>
@@ -306,7 +323,8 @@
 										class="flex items-center gap-1 rounded-full border border-line px-2.5 py-1 text-xs text-muted transition-colors hover:border-muted hover:text-fg"
 										onclick={() => (showNewProjectFor = job.id)}
 									>
-										<Plus size={12} /> Projekt
+										<Plus size={12} />
+										{t('Project')}
 									</button>
 								{/if}
 							</div>
@@ -317,7 +335,7 @@
 				<p
 					class="rounded-2xl border border-dashed border-line px-6 py-14 text-center text-sm text-muted"
 				>
-					Noch keine Jobs angelegt. Leg rechts deinen ersten an.
+					{t('No jobs yet. Create your first one on the right.')}
 				</p>
 			{/each}
 		</div>
@@ -328,24 +346,24 @@
 			class="flex flex-col gap-5.5 rounded-2xl bg-surface p-5 sm:p-7 xl:sticky xl:top-8"
 		>
 			<div class="flex flex-col gap-1.5">
-				<h2 id="new-job-title" class="text-[17px] font-semibold">Neuen Job anlegen</h2>
+				<h2 id="new-job-title" class="text-[17px] font-semibold">{t('Create a new job')}</h2>
 				<p class="text-[13px] leading-snug text-muted">
-					Anstellung mit Stundenlohn, z. B. Hauptjob oder Minijob.
+					{t('A position with an hourly rate, e.g. main job or Minijob.')}
 				</p>
 			</div>
 			<form method="POST" action="?/createJob" use:enhance class="flex flex-col gap-5.5">
 				<label class="flex flex-col gap-2">
-					<span class="text-xs text-muted">Name</span>
+					<span class="text-xs text-muted">{t('Name')}</span>
 					<input
 						type="text"
 						name="name"
 						required
-						placeholder="z. B. Werkstudent Agentur"
+						placeholder={t('e.g. Agency working student')}
 						class="h-10.5 rounded-[10px] border border-line-strong bg-bg px-3.5 text-sm outline-none placeholder:text-muted/60 focus:border-accent"
 					/>
 				</label>
 				<fieldset class="flex flex-col gap-2.5">
-					<legend class="pb-2.5 text-xs text-muted">Farbe</legend>
+					<legend class="pb-2.5 text-xs text-muted">{t('Color')}</legend>
 					<div class="flex flex-wrap gap-2">
 						{#each JOB_COLORS as color (color)}
 							<label
@@ -358,7 +376,7 @@
 									value={color}
 									checked={color === defaultColor}
 									class="sr-only"
-									aria-label="Farbe {color}"
+									aria-label={t('Color {color}', { color })}
 								/>
 								<span class="size-5 rounded-full" style:background={color}></span>
 							</label>
@@ -366,7 +384,7 @@
 					</div>
 				</fieldset>
 				<label class="flex flex-col gap-2">
-					<span class="text-xs text-muted">Stundenlohn</span>
+					<span class="text-xs text-muted">{t('Hourly rate')}</span>
 					<span
 						class="flex h-10.5 items-center rounded-[10px] border border-line-strong bg-bg px-3.5 focus-within:border-accent"
 					>
@@ -375,7 +393,7 @@
 							name="hourlyRate"
 							inputmode="decimal"
 							required
-							placeholder="14,00"
+							placeholder={(14).toLocaleString(locale(), { minimumFractionDigits: 2 })}
 							class="w-full min-w-0 bg-transparent font-mono text-sm outline-none placeholder:text-muted/60"
 						/>
 						<span class="text-[13px] text-muted">€/h</span>
@@ -385,7 +403,12 @@
 					<span class="flex flex-1 flex-col gap-0.5">
 						<span class="text-sm font-medium">Minijob</span>
 						<span class="text-xs text-muted"
-							>Zählt zur Minijob-Grenze ({formatCents(MINIJOB_LIMIT_CENTS)} / Monat)</span
+							>{t(
+								'German mini-job with a monthly earnings cap. Counts towards the limit ({limit} / month)',
+								{
+									limit: formatCents(MINIJOB_LIMIT_CENTS)
+								}
+							)}</span
 						>
 					</span>
 					<input type="checkbox" name="isMinijob" class="peer sr-only" />
@@ -398,7 +421,8 @@
 					type="submit"
 					class="flex h-11 items-center justify-center gap-2 rounded-full bg-accent text-sm font-semibold text-ink hover:brightness-95"
 				>
-					<Plus size={16} /> Job anlegen
+					<Plus size={16} />
+					{t('Create job')}
 				</button>
 			</form>
 		</section>
