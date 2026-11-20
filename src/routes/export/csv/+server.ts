@@ -1,44 +1,54 @@
 import type { RequestHandler } from './$types';
 import { loadExportRows, parseExportParams } from '$lib/server/export';
+import { getLang } from '$lib/server/db/queries';
+import { LOCALES, translate, type Lang } from '$lib/i18n';
 
-function csvField(value: string): string {
-	if (/[;"\n]/.test(value)) {
+// German Excel expects ';' and a decimal comma; English Excel ',' and a decimal point.
+const delimiter = (lang: Lang) => (lang === 'de' ? ';' : ',');
+const decimal = (n: number, lang: Lang) => n.toFixed(2).replace('.', lang === 'de' ? ',' : '.');
+
+function csvField(value: string, sep: string): string {
+	if (value.includes(sep) || /["\n]/.test(value)) {
 		return `"${value.replace(/"/g, '""')}"`;
 	}
 	return value;
 }
 
-function formatHours(seconds: number): string {
-	return (seconds / 3600).toFixed(2).replace('.', ',');
-}
-
-function formatEuro(cents: number): string {
-	return (cents / 100).toFixed(2).replace('.', ',');
-}
-
-const time = (d: Date) => d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-
 export const GET: RequestHandler = async ({ url }) => {
 	const { fromRaw, toRaw, from, to, jobIds } = parseExportParams(url);
 	const { rows } = await loadExportRows(from, to, jobIds);
+	const lang = await getLang();
+	const t = (key: string) => translate(lang, key);
+	const sep = delimiter(lang);
+	const time = (d: Date) =>
+		d.toLocaleTimeString(LOCALES[lang], { hour: '2-digit', minute: '2-digit' });
 
 	const lines = [
-		['Datum', 'Job', 'Start', 'Ende', 'Dauer (h)', 'Notiz', 'Tätigkeiten', 'Brutto (EUR)']
+		[
+			t('Date'),
+			t('Job'),
+			t('Start'),
+			t('End'),
+			t('Duration (h)'),
+			t('Note'),
+			t('Activities'),
+			t('Gross (EUR)')
+		]
 	];
 	for (const row of rows) {
 		lines.push([
-			row.start.toLocaleDateString('de-DE'),
+			row.start.toLocaleDateString(LOCALES[lang]),
 			row.entry.job.name,
 			time(row.start),
-			row.running ? 'läuft' : time(row.end),
-			formatHours(row.seconds),
+			row.running ? t('running') : time(row.end),
+			decimal(row.seconds / 3600, lang),
 			row.entry.note ?? '',
 			row.entry.activities.join(' · '),
-			formatEuro(row.grossCents)
+			decimal(row.grossCents / 100, lang)
 		]);
 	}
 
-	const csv = lines.map((line) => line.map(csvField).join(';')).join('\r\n');
+	const csv = lines.map((line) => line.map((f) => csvField(f, sep)).join(sep)).join('\r\n');
 	const bom = '﻿'; // so Excel detects UTF-8
 
 	return new Response(bom + csv, {

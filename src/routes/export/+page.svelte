@@ -4,6 +4,7 @@
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import { addDays, startOfMonth, startOfWeek } from '$lib/date';
 	import { formatCents, formatDuration, formatTime, toDatetimeLocal } from '$lib/format';
+	import { locale, t } from '$lib/i18n';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -18,10 +19,10 @@
 		const week = startOfWeek(today);
 		const month = startOfMonth(today);
 		return [
-			{ label: 'Diese Woche', from: isoDate(week), to: isoDate(addDays(week, 6)) },
-			{ label: 'Letzte Woche', from: isoDate(addDays(week, -7)), to: isoDate(addDays(week, -1)) },
+			{ label: t('This week'), from: isoDate(week), to: isoDate(addDays(week, 6)) },
+			{ label: t('Last week'), from: isoDate(addDays(week, -7)), to: isoDate(addDays(week, -1)) },
 			{
-				label: today.toLocaleDateString('de-DE', { month: 'long' }),
+				label: today.toLocaleDateString(locale(), { month: 'long' }),
 				from: isoDate(month),
 				to: isoDate(new Date(month.getFullYear(), month.getMonth() + 1, 0))
 			}
@@ -56,24 +57,24 @@
 	const perJobByName = $derived(new Map(data.perJob.map((p) => [p.name, p])));
 	const dayLabel = (d: Date) =>
 		new Date(d)
-			.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' })
+			.toLocaleDateString(locale(), { weekday: 'short', day: '2-digit', month: '2-digit' })
 			.replace(',', '');
 	const hm = (s: number) =>
 		`${Math.floor(s / 3600)}:${String(Math.floor((s % 3600) / 60)).padStart(2, '0')}`;
 	const rangeLabel = $derived(
-		`${new Date(`${data.from}T00:00`).toLocaleDateString('de-DE')} – ${new Date(`${data.to}T00:00`).toLocaleDateString('de-DE')}`
+		`${new Date(`${data.from}T00:00`).toLocaleDateString(locale())} – ${new Date(`${data.to}T00:00`).toLocaleDateString(locale())}`
 	);
 </script>
 
-<svelte:head><title>kala · Export</title></svelte:head>
+<svelte:head><title>kala · {t('Export')}</title></svelte:head>
 
 <div class="flex flex-col gap-7 lg:min-h-[calc(100vh-4rem)]">
-	<PageHeader eyebrow="Stundennachweis · CSV · PDF" title="Export" />
+	<PageHeader eyebrow="{t('Timesheet')} · CSV · PDF" title="Export" />
 
 	<div class="grid flex-1 gap-10 lg:grid-cols-[400px_1fr]">
 		<div class="flex flex-col gap-7.5">
 			<fieldset class="flex flex-col gap-3">
-				<legend class="pb-3 eyebrow">Zeitraum</legend>
+				<legend class="pb-3 eyebrow">{t('Period')}</legend>
 				<div class="flex flex-wrap gap-1.5">
 					{#each presets as preset (preset.label)}
 						{@const active = activePreset === preset}
@@ -93,14 +94,14 @@
 							? 'border border-dashed border-line text-muted'
 							: 'bg-accent font-semibold text-ink'}"
 					>
-						Eigener
+						{t('Custom')}
 					</span>
 				</div>
 				<div class="flex flex-col gap-2.5 sm:flex-row sm:items-center">
 					<label
 						class="flex h-10.5 min-w-0 flex-1 items-center gap-2.5 rounded-[10px] border border-line-strong bg-surface px-3.5 focus-within:border-accent"
 					>
-						<span class="w-6 text-xs text-muted">Von</span>
+						<span class="w-6 text-xs text-muted">{t('From')}</span>
 						<input
 							type="date"
 							value={data.from}
@@ -113,7 +114,7 @@
 					<label
 						class="flex h-10.5 min-w-0 flex-1 items-center gap-2.5 rounded-[10px] border border-line-strong bg-surface px-3.5 focus-within:border-accent"
 					>
-						<span class="w-6 text-xs text-muted">Bis</span>
+						<span class="w-6 text-xs text-muted">{t('To')}</span>
 						<input
 							type="date"
 							value={data.to}
@@ -127,7 +128,7 @@
 
 			{#if data.jobs.length}
 				<fieldset class="flex flex-col gap-2">
-					<legend class="pb-3 eyebrow">Jobs</legend>
+					<legend class="pb-3 eyebrow">{t('Jobs')}</legend>
 					{#each data.jobs as job (job.id)}
 						{@const checked = data.selectedJobIds.includes(job.id)}
 						{@const totals = perJobByName.get(job.name)}
@@ -151,7 +152,8 @@
 							<span class="size-2 rounded-xs" style:background={job.color} aria-hidden="true"
 							></span>
 							<span class="flex-1 truncate text-sm {checked ? '' : 'text-muted'}">
-								{job.name}{#if job.archived}<span class="text-muted">{' · archiviert'}</span>{/if}
+								{job.name}{#if job.archived}<span class="text-muted">{` · ${t('archived')}`}</span
+									>{/if}
 							</span>
 							<span class="font-mono text-xs text-muted"
 								>{totals ? formatDuration(totals.seconds) : '—'}</span
@@ -162,9 +164,9 @@
 			{/if}
 
 			<fieldset class="flex flex-col gap-3">
-				<legend class="pb-3 eyebrow">Format</legend>
+				<legend class="pb-3 eyebrow">{t('Format')}</legend>
 				<div class="grid grid-cols-2 gap-2.5">
-					{#each [{ key: 'pdf', label: 'PDF', desc: 'Stundennachweis zum Ausdrucken', icon: FileText }, { key: 'csv', label: 'CSV', desc: 'Für Excel, Steuer & Lohnbüro', icon: Sheet }] as const as option (option.key)}
+					{#each [{ key: 'pdf', label: 'PDF', desc: t('Timesheet for printing'), icon: FileText }, { key: 'csv', label: 'CSV', desc: t('For Excel, tax & payroll'), icon: Sheet }] as const as option (option.key)}
 						{@const active = format === option.key}
 						<label
 							class="flex cursor-pointer flex-col gap-2.5 rounded-xl border p-4 transition-colors has-focus-visible:outline-2 has-focus-visible:outline-accent {active
@@ -197,15 +199,15 @@
 			<div class="mt-auto flex flex-col gap-4">
 				<dl class="flex justify-between border-t border-line pt-4">
 					<div class="flex flex-col gap-1">
-						<dt class="text-xs text-muted">Einträge</dt>
+						<dt class="text-xs text-muted">{t('Entries')}</dt>
 						<dd class="font-mono text-base font-medium">{data.rows.length}</dd>
 					</div>
 					<div class="flex flex-col gap-1">
-						<dt class="text-xs text-muted">Stunden</dt>
+						<dt class="text-xs text-muted">{t('Hours')}</dt>
 						<dd class="font-mono text-base font-medium">{formatDuration(data.totalSeconds)}</dd>
 					</div>
 					<div class="flex flex-col gap-1">
-						<dt class="text-xs text-muted">Brutto</dt>
+						<dt class="text-xs text-muted">{t('Gross')}</dt>
 						<dd class="font-mono text-base font-medium">{formatCents(data.totalGrossCents)}</dd>
 					</div>
 				</dl>
@@ -219,20 +221,20 @@
 					aria-disabled={!data.selectedJobIds.length}
 				>
 					<Download size={16} />
-					{format.toUpperCase()} herunterladen
+					{t('Download {format}', { format: format.toUpperCase() })}
 				</a>
 			</div>
 		</div>
 
 		<section
 			id="preview"
-			aria-label="Vorschau"
+			aria-label={t('Preview')}
 			class="flex min-w-0 flex-col items-center gap-5 overflow-hidden rounded-2xl bg-surface px-4 py-6 sm:px-10 sm:py-7"
 		>
 			<div class="flex w-full items-center justify-between text-[13px] text-muted">
-				<span class="flex items-center gap-2"><Eye size={15} /> Vorschau</span>
+				<span class="flex items-center gap-2"><Eye size={15} /> {t('Preview')}</span>
 				<span class="font-mono text-[11px] tracking-wide"
-					>{format === 'pdf' ? 'A4 · PDF' : 'CSV · Semikolon-getrennt'}</span
+					>{format === 'pdf' ? 'A4 · PDF' : t('CSV · comma-separated')}</span
 				>
 			</div>
 
@@ -241,7 +243,7 @@
 			>
 				<div class="flex items-start justify-between">
 					<div class="flex flex-col gap-1">
-						<p class="text-[22px] font-bold tracking-tight">Stundennachweis</p>
+						<p class="text-[22px] font-bold tracking-tight">{t('Timesheet')}</p>
 						<p class="font-mono text-[10px] text-[#7a776f]">{rangeLabel}</p>
 					</div>
 					<p class="flex items-center gap-1.5 text-[13px] font-bold tracking-tight">
@@ -255,11 +257,11 @@
 							<tr
 								class="border-b border-[#1a1a18] text-left font-mono text-[8px] tracking-widest text-[#7a776f] uppercase"
 							>
-								<th class="w-[22%] py-1.5 font-normal">Datum</th>
+								<th class="w-[22%] py-1.5 font-normal">{t('Date')}</th>
 								<th class="py-1.5 font-normal">Job</th>
-								<th class="w-[22%] py-1.5 font-normal max-sm:hidden">Zeit</th>
-								<th class="w-[12%] py-1.5 text-right font-normal">Dauer</th>
-								<th class="w-[15%] py-1.5 text-right font-normal">Betrag</th>
+								<th class="w-[22%] py-1.5 font-normal max-sm:hidden">{t('Time')}</th>
+								<th class="w-[12%] py-1.5 text-right font-normal">{t('Duration')}</th>
+								<th class="w-[15%] py-1.5 text-right font-normal">{t('Amount')}</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -276,12 +278,15 @@
 									</td>
 									<td class="py-1.5 font-mono max-sm:hidden">
 										{formatTime(new Date(row.start))}–{row.running
-											? 'läuft'
+											? t('running')
 											: formatTime(new Date(row.end))}
 									</td>
 									<td class="py-1.5 text-right font-mono">{hm(row.seconds)}</td>
 									<td class="py-1.5 text-right font-mono"
-										>{(row.grossCents / 100).toFixed(2).replace('.', ',')}</td
+										>{(row.grossCents / 100).toLocaleString(locale(), {
+											minimumFractionDigits: 2,
+											maximumFractionDigits: 2
+										})}</td
 									>
 								</tr>
 							{/each}
@@ -289,11 +294,11 @@
 					</table>
 					{#if data.rows.length > PREVIEW_ROWS}
 						<p class="-mt-3 font-mono text-[9px] text-[#7a776f]">
-							+ {data.rows.length - PREVIEW_ROWS} weitere Einträge
+							{t('+ {n} more entries', { n: data.rows.length - PREVIEW_ROWS })}
 						</p>
 					{/if}
 				{:else}
-					<p class="py-10 text-center text-xs text-[#7a776f]">Keine Einträge in diesem Zeitraum.</p>
+					<p class="py-10 text-center text-xs text-[#7a776f]">{t('No entries in this period.')}</p>
 				{/if}
 
 				<div class="mt-auto flex flex-col gap-1.5 border-t-[1.5px] border-[#1a1a18] pt-3">
@@ -306,7 +311,7 @@
 						{/each}
 					{/if}
 					<p class="flex justify-between text-[11px] font-bold">
-						<span>Gesamt · {hm(data.totalSeconds)} h</span>
+						<span>{t('Total')} · {hm(data.totalSeconds)} h</span>
 						<span class="font-mono">{formatCents(data.totalGrossCents)}</span>
 					</p>
 				</div>
