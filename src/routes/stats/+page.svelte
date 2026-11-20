@@ -1,19 +1,20 @@
 <script lang="ts">
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import { formatCents, formatDuration } from '$lib/format';
+	import { locale, t } from '$lib/i18n';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 
-	const ranges = [
-		{ key: '12w', label: '12 Wochen', eyebrow: 'Letzte 12 Wochen' },
-		{ key: '6m', label: '6 Monate', eyebrow: 'Letzte 6 Monate' },
-		{ key: '1y', label: 'Jahr', eyebrow: 'Letzte 52 Wochen' }
-	] as const;
+	const ranges = $derived([
+		{ key: '12w', label: t('12 weeks'), eyebrow: t('Last 12 weeks') },
+		{ key: '6m', label: t('6 months'), eyebrow: t('Last 6 months') },
+		{ key: '1y', label: t('Year'), eyebrow: t('Last 52 weeks') }
+	]);
 
 	const hm = (hours: number) => formatDuration(Math.round(hours * 3600));
 	const hoursLabel = (h: number) =>
-		h.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+		h.toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
 	const scaleMax = $derived(
 		Math.max(data.weeklyTargetHours * 1.25, ...data.weeks.map((w) => w.hours * 1.1), 1)
@@ -25,7 +26,7 @@
 	const totalMonthHours = $derived(data.perJob.reduce((sum, p) => sum + p.hours, 0));
 	const totalMonthCents = $derived(data.perJob.reduce((sum, p) => sum + p.grossCents, 0));
 	const monthName = $derived(
-		new Date(data.monthStart).toLocaleDateString('de-DE', { month: 'long' })
+		new Date(data.monthStart).toLocaleDateString(locale(), { month: 'long' })
 	);
 
 	// Donut segments as stroke-dash ranges on a circle of circumference 100, starting at 12 o'clock.
@@ -42,27 +43,35 @@
 
 	const figures = $derived([
 		{
-			label: 'Ø pro Woche',
+			label: t('Ø per week'),
 			value: hm(data.avgWeekHours),
-			sub: `Soll ${data.weeklyTargetHours.toLocaleString('de-DE')}h`
+			sub: t('Target {hours}h', { hours: data.weeklyTargetHours.toLocaleString(locale()) })
 		},
 		{
-			label: 'Überstunden-Saldo',
+			label: t('Overtime balance'),
 			value: `${data.balanceHours >= 0 ? '+' : '−'} ${hm(Math.abs(data.balanceHours))}`,
-			sub: `seit ${new Date(data.balanceSince).toLocaleDateString('de-DE', { day: 'numeric', month: 'long' })}`,
+			sub: t('since {date}', {
+				date: new Date(data.balanceSince).toLocaleDateString(locale(), {
+					day: 'numeric',
+					month: 'long'
+				})
+			}),
 			highlight: data.balanceHours > 0
 		},
 		{
-			label: 'Ø Stundenlohn',
+			label: t('Ø hourly rate'),
 			value: formatCents(data.avgRateCents),
-			sub: 'gewichtet über alle Jobs'
+			sub: t('weighted across all jobs')
 		},
 		...(data.minijob
 			? [
 					{
-						label: 'Minijob-Grenze',
+						label: t('Minijob limit'),
 						value: formatCents(data.minijob.grossCents),
-						sub: `von ${formatCents(data.minijob.limitCents)} im ${monthName}`,
+						sub: t('of {limit} in {month}', {
+							limit: formatCents(data.minijob.limitCents),
+							month: monthName
+						}),
 						highlight: false
 					}
 				]
@@ -70,11 +79,14 @@
 	]);
 </script>
 
-<svelte:head><title>kala · Statistik</title></svelte:head>
+<svelte:head><title>kala · {t('Statistics')}</title></svelte:head>
 
 <div class="flex flex-col gap-7">
-	<PageHeader eyebrow={ranges.find((r) => r.key === data.range)?.eyebrow ?? ''} title="Statistik">
-		<nav class="flex gap-0.5 rounded-full border border-line p-1" aria-label="Zeitraum">
+	<PageHeader
+		eyebrow={ranges.find((r) => r.key === data.range)?.eyebrow ?? ''}
+		title={t('Statistics')}
+	>
+		<nav class="flex gap-0.5 rounded-full border border-line p-1" aria-label={t('Time range')}>
 			{#each ranges as r (r.key)}
 				<a
 					href="?range={r.key}"
@@ -92,23 +104,26 @@
 	<section id="weekly" class="flex flex-col gap-6">
 		<div class="flex flex-wrap items-end justify-between gap-4">
 			<div class="flex flex-col gap-1.5">
-				<h2 class="text-[17px] font-semibold">Stunden pro Woche</h2>
+				<h2 class="text-[17px] font-semibold">{t('Hours per week')}</h2>
 				<p class="text-[13px] text-muted">
-					Ø {hm(data.avgWeekHours)} · {data.weeksOverTarget} von {data.completedWeeks} Wochen über dem
-					Soll
+					{t('Ø {avg} · {over} of {total} weeks over target', {
+						avg: hm(data.avgWeekHours),
+						over: data.weeksOverTarget,
+						total: data.completedWeeks
+					})}
 				</p>
 			</div>
 			<ul class="flex items-center gap-4.5 text-xs text-muted">
 				<li class="flex items-center gap-2">
-					<span class="size-2 rounded-xs bg-line-strong"></span>Woche
+					<span class="size-2 rounded-xs bg-line-strong"></span>{t('Week')}
 				</li>
 				<li class="flex items-center gap-2">
-					<span class="size-2 rounded-xs bg-accent"></span>Aktuell
+					<span class="size-2 rounded-xs bg-accent"></span>{t('Current')}
 				</li>
 				<li class="flex items-center gap-2">
-					<span class="h-0.5 w-3.5 bg-muted"></span>Soll {data.weeklyTargetHours.toLocaleString(
-						'de-DE'
-					)}h
+					<span class="h-0.5 w-3.5 bg-muted"></span>{t('Target {hours}h', {
+						hours: data.weeklyTargetHours.toLocaleString(locale())
+					})}
 				</li>
 			</ul>
 		</div>
@@ -137,7 +152,7 @@
 						<div
 							class="w-full rounded-t-md rounded-b-[2px] {current ? 'bg-accent' : 'bg-line-strong'}"
 							style:height="{Math.max(1, (week.hours / scaleMax) * 100)}%"
-							title="KW {week.kw}: {hm(week.hours)}"
+							title="{t('Wk')} {week.kw}: {hm(week.hours)}"
 						></div>
 					</div>
 				{/each}
@@ -151,17 +166,17 @@
 							: 'text-muted'}"
 					>
 						{#if (currentIndex - i) % labelEvery === 0}<span class={dense ? '' : 'max-sm:hidden'}
-								>KW
+								>{t('Wk')}
 							</span>{week.kw}{/if}
 					</span>
 				{/each}
 			</div>
 			<table class="sr-only">
-				<caption>Stunden pro Kalenderwoche</caption>
-				<thead><tr><th>Woche</th><th>Stunden</th></tr></thead>
+				<caption>{t('Hours per calendar week')}</caption>
+				<thead><tr><th>{t('Week')}</th><th>{t('Hours')}</th></tr></thead>
 				<tbody>
 					{#each data.weeks as week (week.weekStart)}
-						<tr><td>KW {week.kw}</td><td>{hm(week.hours)}</td></tr>
+						<tr><td>{t('Wk')} {week.kw}</td><td>{hm(week.hours)}</td></tr>
 					{/each}
 				</tbody>
 			</table>
@@ -171,11 +186,11 @@
 	<div class="grid gap-7 xl:grid-cols-[1fr_400px]">
 		<section id="per-job" class="flex flex-col gap-6 rounded-2xl bg-surface p-6 sm:p-7">
 			<div class="flex items-center justify-between">
-				<h2 class="text-[17px] font-semibold">Stunden pro Job</h2>
+				<h2 class="text-[17px] font-semibold">{t('Hours per job')}</h2>
 				<span class="text-[13px] text-muted">{monthName}</span>
 			</div>
 			{#if data.perJob.length === 0}
-				<p class="py-8 text-center text-sm text-muted">Noch keine Einträge in diesem Monat.</p>
+				<p class="py-8 text-center text-sm text-muted">{t('No entries this month yet.')}</p>
 			{:else}
 				<div class="flex flex-1 flex-col items-center gap-9 sm:flex-row">
 					<div class="relative size-44 shrink-0">
@@ -237,8 +252,8 @@
 			{/if}
 		</section>
 
-		<section id="kennzahlen" class="flex flex-col">
-			<h2 class="pb-3.5 text-[17px] font-semibold">Kennzahlen</h2>
+		<section id="key-figures" class="flex flex-col">
+			<h2 class="pb-3.5 text-[17px] font-semibold">{t('Key figures')}</h2>
 			<dl>
 				{#each figures as f (f.label)}
 					<div class="flex items-center justify-between gap-4 border-t border-line py-4">

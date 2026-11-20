@@ -4,6 +4,7 @@
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import { isoWeek } from '$lib/date';
 	import { formatCents, formatDuration, formatTime, toDatetimeLocal } from '$lib/format';
+	import { locale, t } from '$lib/i18n';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -22,12 +23,11 @@
 	const todayTime = $derived(new Date(data.today).getTime());
 
 	const eyebrow = $derived.by(() => {
-		const sameMonth = weekStart.getMonth() === weekEnd.getMonth();
-		const month = (d: Date) => d.toLocaleDateString('de-DE', { month: 'long' });
-		const range = sameMonth
-			? `${weekStart.getDate()}.–${weekEnd.getDate()}. ${month(weekEnd)}`
-			: `${weekStart.getDate()}. ${month(weekStart)} – ${weekEnd.getDate()}. ${month(weekEnd)}`;
-		return `KW ${isoWeek(weekStart)} · ${range}`;
+		const range = new Intl.DateTimeFormat(locale(), {
+			day: 'numeric',
+			month: 'long'
+		}).formatRange(weekStart, weekEnd);
+		return `${t('Wk')} ${isoWeek(weekStart)} · ${range}`;
 	});
 
 	const targetSeconds = $derived(data.weeklyTargetHours * 3600);
@@ -39,12 +39,13 @@
 	const avgRateCents = $derived(total > 0 ? data.weekSummary.totalGrossCents / (total / 3600) : 0);
 
 	const remainingSub = $derived.by(() => {
-		if (data.offset < 0) return 'Woche abgeschlossen';
-		if (data.offset > 0) return 'Woche liegt in der Zukunft';
+		if (data.offset < 0) return t('Week finished');
+		if (data.offset > 0) return t('Week is in the future');
 		const daysLeft = 6 - ((new Date(todayTime).getDay() + 6) % 7);
-		return daysLeft === 0
-			? 'heute ist der letzte Tag'
-			: `bis Sonntag, ${daysLeft} ${daysLeft === 1 ? 'Tag' : 'Tage'} übrig`;
+		if (daysLeft === 0) return t('today is the last day');
+		return daysLeft === 1
+			? t('until Sunday, 1 day left')
+			: t('until Sunday, {n} days left', { n: daysLeft });
 	});
 
 	const hourOf = (d: Date, dayStart: Date) => (d.getTime() - dayStart.getTime()) / 3_600_000;
@@ -72,15 +73,15 @@
 	const pad = (n: number) => n.toString().padStart(2, '0');
 </script>
 
-<svelte:head><title>kala · Übersicht</title></svelte:head>
+<svelte:head><title>kala · {t('Overview')}</title></svelte:head>
 
 <div class="flex flex-col gap-7">
-	<PageHeader {eyebrow} title="Wochenübersicht">
-		<nav class="flex items-center gap-2" aria-label="Woche wechseln">
+	<PageHeader {eyebrow} title={t('Week overview')}>
+		<nav class="flex items-center gap-2" aria-label={t('Change week')}>
 			<a
 				href="?offset={data.offset - 1}"
 				class="grid size-9.5 place-items-center rounded-full border border-line transition-colors hover:border-muted"
-				aria-label="Vorherige Woche"
+				aria-label={t('Previous week')}
 			>
 				<ChevronLeft size={16} />
 			</a>
@@ -92,12 +93,12 @@
 					? 'bg-raised'
 					: 'border border-line hover:border-muted'}"
 			>
-				Diese Woche
+				{t('This week')}
 			</a>
 			<a
 				href="?offset={data.offset + 1}"
 				class="grid size-9.5 place-items-center rounded-full border border-line transition-colors hover:border-muted"
-				aria-label="Nächste Woche"
+				aria-label={t('Next week')}
 			>
 				<ChevronRight size={16} />
 			</a>
@@ -106,11 +107,11 @@
 
 	<section
 		id="summary"
-		aria-label="Wochensumme"
+		aria-label={t('Week total')}
 		class="grid grid-cols-2 border-y border-line xl:grid-cols-4"
 	>
 		<div class="flex min-w-0 flex-col gap-1.5 py-5 pr-4 sm:pr-6">
-			<span class="eyebrow">Woche gesamt</span>
+			<span class="eyebrow">{t('Week total')}</span>
 			<span class="font-mono text-2xl font-medium tracking-tight tabular-nums sm:text-[30px]"
 				>{formatDuration(total)}</span
 			>
@@ -121,28 +122,33 @@
 					aria-valuenow={progress}
 					aria-valuemin={0}
 					aria-valuemax={100}
-					aria-label="Fortschritt zum Wochensoll"
+					aria-label={t('Progress towards the weekly target')}
 				>
 					<div class="h-full rounded-full bg-accent" style:width="{progress}%"></div>
 				</div>
 				<span class="text-[13px] text-muted"
-					>{progress} % von {data.weeklyTargetHours.toLocaleString('de-DE')}h Soll</span
+					>{t('{percent} % of {hours}h target', {
+						percent: progress,
+						hours: data.weeklyTargetHours.toLocaleString(locale())
+					})}</span
 				>
 			</div>
 		</div>
 		<div class="flex min-w-0 flex-col gap-1.5 border-l border-line py-5 pl-4 sm:px-6">
-			<span class="eyebrow">Brutto</span>
+			<span class="eyebrow">{t('Gross')}</span>
 			<span class="font-mono text-2xl font-medium tracking-tight tabular-nums sm:text-[30px]"
 				>{formatCents(data.weekSummary.totalGrossCents)}</span
 			>
 			<span class="text-[13px] text-muted"
-				>{total > 0 ? `Ø ${formatCents(avgRateCents)} / Stunde` : 'noch nichts verdient'}</span
+				>{total > 0
+					? t('Ø {rate} / hour', { rate: formatCents(avgRateCents) })
+					: t('nothing earned yet')}</span
 			>
 		</div>
 		<div
 			class="flex min-w-0 flex-col gap-1.5 border-t border-line py-5 pr-4 sm:pr-6 xl:border-t-0 xl:border-l xl:px-6"
 		>
-			<span class="eyebrow">{remaining > 0 ? 'Noch offen' : 'Über Soll'}</span>
+			<span class="eyebrow">{remaining > 0 ? t('Still open') : t('Over target')}</span>
 			<span
 				class="font-mono text-2xl font-medium tracking-tight tabular-nums sm:text-[30px] {remaining >
 				0
@@ -156,7 +162,7 @@
 		<div
 			class="flex min-w-0 flex-col gap-1.5 border-t border-l border-line py-5 pl-4 sm:px-6 xl:border-t-0"
 		>
-			<span class="eyebrow">Nach Job</span>
+			<span class="eyebrow">{t('By job')}</span>
 			{#if data.perJob.length}
 				<div class="flex gap-[3px] pt-3.5 pb-2.5">
 					{#each data.perJob as job (job.name)}
@@ -177,12 +183,12 @@
 					{/each}
 				</ul>
 			{:else}
-				<span class="pt-2 text-[13px] text-muted">Keine Einträge in dieser Woche.</span>
+				<span class="pt-2 text-[13px] text-muted">{t('No entries this week.')}</span>
 			{/if}
 		</div>
 	</section>
 
-	<section id="timeline" aria-label="Tage der Woche" class="flex flex-col">
+	<section id="timeline" aria-label={t('Days of the week')} class="flex flex-col">
 		<div
 			class="grid grid-cols-[48px_1fr_88px] gap-3 pb-2.5 sm:grid-cols-[96px_1fr_150px] sm:gap-6"
 			aria-hidden="true"
@@ -222,12 +228,12 @@
 									? 'text-muted'
 									: ''}"
 						>
-							{date.toLocaleDateString('de-DE', { weekday: 'short' }).slice(0, 2).toUpperCase()}
+							{date.toLocaleDateString(locale(), { weekday: 'short' }).slice(0, 2).toUpperCase()}
 						</span>
 						<span class="text-xs text-muted">
 							{isToday
-								? 'Heute'
-								: date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}
+								? t('Today')
+								: date.toLocaleDateString(locale(), { day: '2-digit', month: '2-digit' })}
 						</span>
 					</div>
 
@@ -262,7 +268,7 @@
 								style:background={entry.job.color}
 								title="{entry.job.name}: {formatTime(new Date(entry.startTime))} – {entry.endTime
 									? formatTime(new Date(entry.endTime))
-									: 'jetzt'}{entry.note ? ` · ${entry.note}` : ''}"
+									: t('now')}{entry.note ? ` · ${entry.note}` : ''}"
 								aria-hidden="true"
 							>
 								{#if end - start >= 1.5}
@@ -290,12 +296,17 @@
 												e.preventDefault();
 												openEntrySheet(undefined, entry.id);
 											}}
-											>{entry.job.name}, {formatTime(new Date(entry.startTime))} bis {formatTime(
-												new Date(entry.endTime)
-											)} bearbeiten</a
+											>{t('Edit {job}, {from} to {to}', {
+												job: entry.job.name,
+												from: formatTime(new Date(entry.startTime)),
+												to: formatTime(new Date(entry.endTime))
+											})}</a
 										>
 									{:else}
-										{entry.job.name}, {formatTime(new Date(entry.startTime))} bis jetzt
+										{t('{job}, {from} to now', {
+											job: entry.job.name,
+											from: formatTime(new Date(entry.startTime))
+										})}
 									{/if}
 								</li>
 							{/each}
@@ -308,11 +319,13 @@
 							<a
 								href="/entry?date={iso}"
 								class="grid size-7 shrink-0 place-items-center rounded-full border border-line text-muted transition hover:border-accent hover:text-accent sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
-								aria-label="Eintrag für {date.toLocaleDateString('de-DE', {
-									weekday: 'long',
-									day: 'numeric',
-									month: 'long'
-								})} nachtragen"
+								aria-label={t('Add entry for {date}', {
+									date: date.toLocaleDateString(locale(), {
+										weekday: 'long',
+										day: 'numeric',
+										month: 'long'
+									})
+								})}
 								onclick={(e) => {
 									if (e.metaKey || e.ctrlKey || e.shiftKey) return;
 									e.preventDefault();
@@ -349,7 +362,7 @@
 				{/each}
 				{#if hasRunning}
 					<li class="flex items-center gap-2 text-xs text-muted">
-						<span class="h-3 w-0.5 bg-fg"></span>Jetzt · Timer läuft
+						<span class="h-3 w-0.5 bg-fg"></span>{t('Now · timer running')}
 					</li>
 				{/if}
 			</ul>
