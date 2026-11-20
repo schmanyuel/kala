@@ -4,6 +4,7 @@
 	import { formatCents, formatDuration, formatTime } from '$lib/format';
 	import { editEntryHref, openEntrySheet } from '$lib/entry-sheet';
 	import { isoWeek } from '$lib/date';
+	import { locale, t } from '$lib/i18n';
 	import StopDialog from '$lib/components/StopDialog.svelte';
 	import { isRoundingStep } from '$lib/rounding';
 	import type { ActionData, PageData } from './$types';
@@ -52,9 +53,9 @@
 		`${pad(Math.floor(s / 3600))}:${pad(Math.floor((s % 3600) / 60))}:${pad(Math.floor(s % 60))}`;
 	const short = (s: number) => `${Math.floor(s / 3600)}:${pad(Math.floor((s % 3600) / 60))}`;
 
-	const weekday = now.toLocaleDateString('de-DE', { weekday: 'long' });
-	const title = now.toLocaleDateString('de-DE', { day: 'numeric', month: 'long' });
-	const monthShort = now.toLocaleDateString('de-DE', { month: 'short' });
+	const weekday = $derived(now.toLocaleDateString(locale(), { weekday: 'long' }));
+	const title = $derived(now.toLocaleDateString(locale(), { day: 'numeric', month: 'long' }));
+	const monthShort = $derived(now.toLocaleDateString(locale(), { month: 'short' }));
 
 	const earnedCents = $derived((elapsedSeconds / 3600) * data.runningRateCents);
 	const maxDaySeconds = $derived(Math.max(3600, ...data.week.map((d) => d.totalSeconds)));
@@ -63,21 +64,23 @@
 	]);
 	const stats = $derived([
 		{
-			label: 'Heute',
+			label: t('Today'),
 			value: formatDuration(data.todaySummary.totalSeconds),
-			sub: `${formatCents(data.todaySummary.totalGrossCents)} brutto`
+			sub: t('{amount} gross', { amount: formatCents(data.todaySummary.totalGrossCents) })
 		},
 		{
-			label: 'Diese Woche',
+			label: t('This week'),
 			value: formatDuration(data.weekSummary.totalSeconds),
-			sub: `von ${data.weeklyTargetHours.toLocaleString('de-DE')}h Ziel`
+			sub: t('of {hours}h target', { hours: data.weeklyTargetHours.toLocaleString(locale()) })
 		},
 		{
-			label: `Brutto ${monthShort}`,
+			label: t('Gross {month}', { month: monthShort }),
 			value: formatCents(data.monthSummary.totalGrossCents),
 			sub: data.minijob
-				? `Minijob-Grenze ${Math.round((data.minijob.grossCents / data.minijob.limitCents) * 100)} %`
-				: `${formatDuration(data.monthSummary.totalSeconds)} gearbeitet`
+				? t('Minijob limit {percent} %', {
+						percent: Math.round((data.minijob.grossCents / data.minijob.limitCents) * 100)
+					})
+				: t('{duration} worked', { duration: formatDuration(data.monthSummary.totalSeconds) })
 		}
 	]);
 
@@ -95,7 +98,7 @@
 			})),
 			{
 				key: 'none',
-				name: 'Ohne Job',
+				name: t('No job'),
 				color: 'var(--color-muted)',
 				todos: data.todos.filter(
 					(t) => t.jobId === null || !data.jobs.some((j) => j.id === t.jobId)
@@ -109,12 +112,12 @@
 		1000;
 </script>
 
-<svelte:head><title>kala · Dashboard</title></svelte:head>
+<svelte:head><title>kala · {t('Dashboard')}</title></svelte:head>
 
 <div class="flex flex-col gap-7">
 	<header id="topbar" class="reveal flex flex-wrap items-center justify-between gap-4 [--i:0]">
 		<div class="flex flex-col gap-1">
-			<p class="eyebrow">{weekday} · KW {isoWeek(now)}</p>
+			<p class="eyebrow">{weekday} · {t('Wk')} {isoWeek(now)}</p>
 			<h1 class="text-[28px] font-semibold tracking-tight">{title}</h1>
 		</div>
 		<a
@@ -126,7 +129,8 @@
 				openEntrySheet();
 			}}
 		>
-			<Plus size={15} /> Eintrag nachtragen
+			<Plus size={15} />
+			{t('Add entry')}
 		</a>
 	</header>
 
@@ -150,8 +154,8 @@
 						class="flex items-center gap-2 font-mono text-xs font-medium tracking-[0.1em] uppercase"
 					>
 						<span class="size-2.5 animate-pulse rounded-full bg-ink" aria-hidden="true"></span>
-						Läuft seit {formatTime(new Date(data.runningEntry.startTime))} · {data.runningEntry.job
-							.name}
+						{t('Running since {time}', { time: formatTime(new Date(data.runningEntry.startTime)) })} ·
+						{data.runningEntry.job.name}
 					</p>
 					<p
 						class="font-mono text-6xl leading-none font-medium tracking-[-0.06em] tabular-nums sm:text-8xl xl:text-[112px]"
@@ -162,9 +166,9 @@
 					{#if data.runningEntry.note}<p class="text-base text-ink/70">
 							{data.runningEntry.note}
 						</p>{/if}
-					<div class="flex flex-wrap items-center gap-1.5 pt-1" aria-label="Tätigkeitsbericht">
+					<div class="flex flex-wrap items-center gap-1.5 pt-1" aria-label={t('Activity report')}>
 						<span class="mr-1 font-mono text-[10px] tracking-[0.14em] text-ink/60 uppercase"
-							>Bericht</span
+							>{t('Report')}</span
 						>
 						{#each data.runningEntry.activities as activity, i (i)}
 							<form method="POST" action="?/removeActivity" use:enhance class="group">
@@ -173,7 +177,7 @@
 								<button
 									type="submit"
 									class="flex items-center gap-1.5 rounded-full bg-ink/8 px-2.5 py-1 text-xs font-medium hover:bg-ink/15"
-									aria-label="„{activity}“ aus dem Bericht entfernen"
+									aria-label={t('Remove “{text}” from the report', { text: activity })}
 								>
 									<Check size={12} class="group-hover:hidden" /><X
 										size={12}
@@ -199,8 +203,8 @@
 								name="text"
 								required
 								bind:value={activityDraft}
-								aria-label="Tätigkeit zum Bericht hinzufügen"
-								placeholder="Tätigkeit"
+								aria-label={t('Add activity to the report')}
+								placeholder={t('Activity')}
 								class="w-24 bg-transparent py-0.5 text-xs font-medium outline-none placeholder:text-ink/50 focus:w-48"
 							/>
 						</form>
@@ -210,7 +214,7 @@
 					{#if data.runningRateCents > 0}
 						<div class="flex flex-col md:items-end">
 							<span class="font-mono text-[11px] tracking-[0.14em] text-ink/60 uppercase"
-								>Bisher</span
+								>{t('So far')}</span
 							>
 							<span class="font-mono text-[28px] font-semibold tabular-nums"
 								>{formatCents(earnedCents)}</span
@@ -227,7 +231,8 @@
 							}}
 							class="flex items-center gap-2.5 rounded-full bg-ink px-7 py-4 text-base font-semibold text-fg hover:bg-raised"
 						>
-							<Square size={14} class="fill-accent text-accent" /> Stopp
+							<Square size={14} class="fill-accent text-accent" />
+							{t('Stop')}
 						</button>
 					</form>
 				</div>
@@ -235,16 +240,17 @@
 		{:else if data.jobs.length === 0}
 			<div class="flex flex-col gap-3">
 				<p class="font-mono text-xs font-medium tracking-[0.1em] uppercase">
-					Noch nichts zu tracken
+					{t('Nothing to track yet')}
 				</p>
 				<p class="max-w-xl text-2xl font-semibold tracking-tight sm:text-3xl">
-					Leg zuerst einen Job an, dann kannst du Zeit erfassen.
+					{t('Create a job first, then you can track time.')}
 				</p>
 				<a
 					href="/jobs"
 					class="mt-2 flex w-fit items-center gap-2 rounded-full bg-ink px-6 py-3.5 text-sm font-semibold text-fg hover:bg-raised"
 				>
-					<Plus size={15} class="text-accent" /> Job anlegen
+					<Plus size={15} class="text-accent" />
+					{t('Create job')}
 				</a>
 			</div>
 		{:else}
@@ -255,7 +261,7 @@
 				class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between"
 			>
 				<div class="flex min-w-0 flex-col gap-3.5">
-					<p class="font-mono text-xs font-medium tracking-[0.1em] uppercase">Bereit</p>
+					<p class="font-mono text-xs font-medium tracking-[0.1em] uppercase">{t('Ready')}</p>
 					<p
 						class="font-mono text-6xl leading-none font-medium tracking-[-0.06em] text-ink/30 tabular-nums sm:text-8xl xl:text-[112px]"
 					>
@@ -274,11 +280,13 @@
 						</select>
 					</label>
 					<label class="flex flex-col gap-1.5">
-						<span class="font-mono text-[11px] tracking-[0.14em] text-ink/60 uppercase">Notiz</span>
+						<span class="font-mono text-[11px] tracking-[0.14em] text-ink/60 uppercase"
+							>{t('Note')}</span
+						>
 						<input
 							type="text"
 							name="note"
-							placeholder="optional"
+							placeholder={t('optional')}
 							class="rounded-lg border border-ink/20 bg-ink/5 px-3 py-2.5 text-sm text-ink placeholder:text-ink/40 focus:border-ink focus:outline-none"
 						/>
 					</label>
@@ -286,7 +294,8 @@
 						type="submit"
 						class="flex items-center justify-center gap-2.5 rounded-full bg-ink px-7 py-3.5 text-base font-semibold text-fg hover:bg-raised"
 					>
-						<Play size={14} class="fill-accent text-accent" /> Start
+						<Play size={14} class="fill-accent text-accent" />
+						{t('Start')}
 					</button>
 				</div>
 			</form>
@@ -297,7 +306,7 @@
 		<div class="flex min-w-0 flex-col gap-7">
 			<section
 				id="stats"
-				aria-label="Kennzahlen"
+				aria-label={t('Key figures')}
 				class="reveal grid border-y border-line [--i:2] sm:grid-cols-3"
 			>
 				{#each stats as stat, i (stat.label)}
@@ -317,7 +326,7 @@
 
 			<section id="week" class="reveal flex flex-col gap-4 [--i:3]">
 				<div class="flex flex-wrap items-center justify-between gap-3">
-					<h2 class="text-[17px] font-semibold">Diese Woche</h2>
+					<h2 class="text-[17px] font-semibold">{t('This week')}</h2>
 					<ul class="flex flex-wrap gap-4">
 						{#each weekJobs as [name, color] (name)}
 							<li class="flex items-center gap-1.5 text-xs text-muted">
@@ -352,7 +361,7 @@
 									: 'text-muted'}"
 							>
 								{new Date(day.day)
-									.toLocaleDateString('de-DE', { weekday: 'short' })
+									.toLocaleDateString(locale(), { weekday: 'short' })
 									.slice(0, 2)
 									.toUpperCase()}
 							</span>
@@ -363,8 +372,8 @@
 		</div>
 
 		<section id="side-panel" class="reveal flex flex-col rounded-2xl bg-surface p-5 [--i:4] sm:p-6">
-			<div class="flex gap-1 pb-4" role="tablist" aria-label="Aufgaben und Einträge">
-				{#each [{ key: 'todos', label: 'Aufgaben', count: openTodoCount }, { key: 'entries', label: 'Einträge heute', count: data.todayEntries.length }] as const as tab (tab.key)}
+			<div class="flex gap-1 pb-4" role="tablist" aria-label={t('Tasks and entries')}>
+				{#each [{ key: 'todos', label: t('Tasks'), count: openTodoCount }, { key: 'entries', label: t('Entries today'), count: data.todayEntries.length }] as const as tab (tab.key)}
 					{@const active = activeTab === tab.key}
 					<button
 						type="button"
@@ -408,8 +417,8 @@
 							name="text"
 							required
 							bind:value={todoDraft}
-							aria-label="Neue Aufgabe"
-							placeholder="Neue Aufgabe …"
+							aria-label={t('New task')}
+							placeholder={t('New task …')}
 							class="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted/60"
 						/>
 						<label
@@ -427,7 +436,7 @@
 								bind:value={todoJobId}
 								class="max-w-24 bg-transparent text-[11px] outline-none"
 							>
-								<option value="">Ohne Job</option>
+								<option value="">{t('No job')}</option>
 								{#each data.jobs as job (job.id)}<option value={String(job.id)}>{job.name}</option
 									>{/each}
 							</select>
@@ -455,7 +464,9 @@
 												type="submit"
 												role="checkbox"
 												aria-checked={done}
-												aria-label="„{todo.text}“ {done ? 'wieder öffnen' : 'abhaken'}"
+												aria-label={done
+													? t('Reopen “{text}”', { text: todo.text })
+													: t('Complete “{text}”', { text: todo.text })}
 												class="grid size-4.5 place-items-center rounded-[5px] transition-colors {done
 													? 'bg-accent text-ink'
 													: 'border-[1.5px] border-line-strong hover:border-accent'}"
@@ -487,7 +498,7 @@
 															editingTodoId = null;
 														}
 													}}
-													aria-label="Aufgabe bearbeiten"
+													aria-label={t('Edit task')}
 													class="w-full min-w-0 rounded-lg border border-accent bg-bg px-2.5 py-1.5 text-sm outline-none"
 												/>
 												<div class="flex flex-wrap items-center gap-2">
@@ -500,7 +511,7 @@
 															value={todo.jobId === null ? '' : String(todo.jobId)}
 															class="max-w-32 bg-transparent text-[11px] outline-none"
 														>
-															<option value="">Ohne Job</option>
+															<option value="">{t('No job')}</option>
 															{#each data.jobs as job (job.id)}<option value={String(job.id)}
 																	>{job.name}</option
 																>{/each}
@@ -511,12 +522,12 @@
 															type="button"
 															onclick={() => (editingTodoId = null)}
 															class="rounded-full px-3 py-1 text-xs text-muted hover:text-fg"
-															>Abbrechen</button
+															>{t('Cancel')}</button
 														>
 														<button
 															type="submit"
 															class="rounded-full bg-accent px-3 py-1 text-xs font-semibold text-ink hover:brightness-95"
-															>Speichern</button
+															>{t('Save')}</button
 														></span
 													>
 												</div>
@@ -529,7 +540,7 @@
 													onclick={(e) => {
 														if (e.detail === 0) editingTodoId = todo.id;
 													}}
-													title="Doppelklick zum Bearbeiten"
+													title={t('Double-click to edit')}
 													class="cursor-text text-left text-sm break-words {done
 														? 'text-muted line-through'
 														: ''}">{todo.text}</button
@@ -538,9 +549,17 @@
 													<span class="text-xs {todo.entry ? 'text-accent' : 'text-muted'}">
 														{todo.entry
 															? todo.entry.id === data.runningEntry?.id
-																? '→ im laufenden Eintrag'
-																: `→ im Eintrag vom ${new Date(todo.entry.startTime).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}`
-															: 'erledigt'}
+																? t('→ in the running entry')
+																: t('→ in the entry of {date}', {
+																		date: new Date(todo.entry.startTime).toLocaleDateString(
+																			locale(),
+																			{
+																				day: '2-digit',
+																				month: '2-digit'
+																			}
+																		)
+																	})
+															: t('done')}
 													</span>
 												{/if}
 											</div>
@@ -550,7 +569,7 @@
 												<button
 													type="button"
 													onclick={() => (editingTodoId = todo.id)}
-													aria-label="„{todo.text}“ bearbeiten"
+													aria-label={t('Edit “{text}”', { text: todo.text })}
 													class="rounded-md p-1 text-muted hover:bg-raised hover:text-fg"
 												>
 													<Pencil size={14} />
@@ -559,7 +578,7 @@
 													<input type="hidden" name="id" value={todo.id} />
 													<button
 														type="submit"
-														aria-label="„{todo.text}“ löschen"
+														aria-label={t('Delete “{text}”', { text: todo.text })}
 														class="rounded-md p-1 text-muted hover:bg-raised hover:text-red-400"
 													>
 														<Trash2 size={14} />
@@ -572,7 +591,7 @@
 							</ul>
 						</div>
 					{:else}
-						<p class="py-10 text-center text-sm text-muted">Keine offenen Aufgaben.</p>
+						<p class="py-10 text-center text-sm text-muted">{t('No open tasks.')}</p>
 					{/each}
 
 					{#if showTodoHint}
@@ -581,14 +600,15 @@
 						>
 							<Sparkles size={15} class="mt-px shrink-0 text-accent" aria-hidden="true" />
 							<p class="flex-1">
-								Abgehakte Aufgaben landen automatisch im Tätigkeitsbericht des laufenden Eintrags –
-								oder du übernimmst sie beim Nachtragen.
+								{t(
+									'Completed tasks are added to the activity report of the running entry automatically – or you can pick them when adding an entry.'
+								)}
 							</p>
 							<button
 								type="button"
 								onclick={dismissTodoHint}
 								class="-m-1 shrink-0 rounded-md p-1 hover:bg-ink/8 hover:text-ink"
-								aria-label="Hinweis schließen"
+								aria-label={t('Dismiss hint')}
 							>
 								<X size={14} aria-hidden="true" />
 							</button>
@@ -624,7 +644,7 @@
 										<span class="font-mono text-[11px] text-muted">
 											{formatTime(new Date(entry.startTime))} – {entry.endTime
 												? formatTime(new Date(entry.endTime))
-												: 'jetzt'}
+												: t('now')}
 										</span>
 									</span>
 								{/snippet}
@@ -633,7 +653,7 @@
 								{:else}
 									<a
 										href={editEntryHref(entry.id)}
-										aria-label="Eintrag {entry.job.name} bearbeiten"
+										aria-label={t('Edit entry {job}', { job: entry.job.name })}
 										class="-mx-2 flex min-w-0 flex-1 items-center gap-3.5 rounded-lg px-2 py-1 transition-colors hover:bg-raised"
 										onclick={(e) => {
 											if (e.metaKey || e.ctrlKey || e.shiftKey) return;
@@ -653,7 +673,7 @@
 									<input type="hidden" name="id" value={entry.id} />
 									<button
 										type="submit"
-										aria-label="Eintrag löschen"
+										aria-label={t('Delete entry')}
 										class="rounded-md p-1.5 text-muted hover:bg-raised hover:text-red-400"
 									>
 										<Trash2 size={15} />
@@ -662,7 +682,7 @@
 							</li>
 						{:else}
 							<li class="border-t border-line py-10 text-center text-sm text-muted">
-								Noch keine Einträge heute.
+								{t('No entries today yet.')}
 							</li>
 						{/each}
 					</ul>

@@ -1,4 +1,4 @@
-import { fail } from '@sveltejs/kit';
+import { failT } from '$lib/server/fail';
 import type { Actions, PageServerLoad } from './$types';
 import {
 	addActivity,
@@ -94,14 +94,12 @@ export const actions: Actions = {
 		const projectIdRaw = form.get('projectId');
 		const note = String(form.get('note') ?? '').trim() || null;
 
-		if (!jobId) return fail(400, { error: 'Bitte einen Job auswählen.' });
+		if (!jobId) return failT(400, 'Please select a job.');
 
 		try {
 			await startTimer(jobId, projectIdRaw ? Number(projectIdRaw) : null, note);
 		} catch (err) {
-			return fail(400, {
-				error: err instanceof Error ? err.message : 'Timer konnte nicht gestartet werden.'
-			});
+			return failT(400, err instanceof Error ? err.message : 'Could not start the timer.');
 		}
 		return { success: true };
 	},
@@ -113,9 +111,7 @@ export const actions: Actions = {
 		try {
 			await stopTimer({ step: isRoundingStep(step) ? step : 0, direction });
 		} catch (err) {
-			return fail(400, {
-				error: err instanceof Error ? err.message : 'Timer konnte nicht gestoppt werden.'
-			});
+			return failT(400, err instanceof Error ? err.message : 'Could not stop the timer.');
 		}
 		return { success: true };
 	},
@@ -123,7 +119,7 @@ export const actions: Actions = {
 	deleteEntry: async ({ request }) => {
 		const form = await request.formData();
 		const id = Number(form.get('id'));
-		if (!id) return fail(400, { error: 'Eintrag fehlt.' });
+		if (!id) return failT(400, 'Entry is missing.');
 		await deleteEntry(id);
 		return { success: true };
 	},
@@ -132,7 +128,7 @@ export const actions: Actions = {
 		const form = await request.formData();
 		const entryId = Number(form.get('entryId'));
 		const text = String(form.get('text') ?? '').trim();
-		if (!entryId || !text) return fail(400, { error: 'Tätigkeit fehlt.' });
+		if (!entryId || !text) return failT(400, 'Activity is missing.');
 		await addActivity(entryId, text);
 		return { success: true };
 	},
@@ -141,7 +137,7 @@ export const actions: Actions = {
 		const form = await request.formData();
 		const entryId = Number(form.get('entryId'));
 		const index = Number(form.get('index'));
-		if (!entryId || !Number.isInteger(index)) return fail(400, { error: 'Tätigkeit fehlt.' });
+		if (!entryId || !Number.isInteger(index)) return failT(400, 'Activity is missing.');
 		await removeActivity(entryId, index);
 		return { success: true };
 	},
@@ -150,7 +146,7 @@ export const actions: Actions = {
 		const form = await request.formData();
 		const text = String(form.get('text') ?? '').trim();
 		const jobIdRaw = String(form.get('jobId') ?? '');
-		if (!text) return fail(400, { error: 'Aufgabe fehlt.' });
+		if (!text) return failT(400, 'Task is missing.');
 		await createTodo(text, jobIdRaw ? Number(jobIdRaw) : null);
 		return { success: true };
 	},
@@ -158,7 +154,7 @@ export const actions: Actions = {
 	toggleTodo: async ({ request }) => {
 		const form = await request.formData();
 		const id = Number(form.get('id'));
-		if (!id) return fail(400, { error: 'Aufgabe fehlt.' });
+		if (!id) return failT(400, 'Task is missing.');
 		await setTodoDone(id, form.get('done') === '1');
 		return { success: true };
 	},
@@ -168,7 +164,7 @@ export const actions: Actions = {
 		const id = Number(form.get('id'));
 		const text = String(form.get('text') ?? '').trim();
 		const jobIdRaw = String(form.get('jobId') ?? '');
-		if (!id || !text) return fail(400, { error: 'Aufgabe fehlt.' });
+		if (!id || !text) return failT(400, 'Task is missing.');
 		await updateTodo(id, text, jobIdRaw ? Number(jobIdRaw) : null);
 		return { success: true };
 	},
@@ -176,7 +172,7 @@ export const actions: Actions = {
 	deleteTodo: async ({ request }) => {
 		const form = await request.formData();
 		const id = Number(form.get('id'));
-		if (!id) return fail(400, { error: 'Aufgabe fehlt.' });
+		if (!id) return failT(400, 'Task is missing.');
 		await deleteTodo(id);
 		return { success: true };
 	}

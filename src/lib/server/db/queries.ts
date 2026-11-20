@@ -103,7 +103,7 @@ export async function getRunningEntry() {
 
 export async function startTimer(jobId: number, projectId: number | null, note: string | null) {
 	const running = await getRunningEntry();
-	if (running) throw new Error('Es läuft bereits ein Timer.');
+	if (running) throw new Error('A timer is already running.');
 	const [entry] = await db
 		.insert(timeEntries)
 		.values({ jobId, projectId, startTime: new Date(), note })
@@ -117,7 +117,7 @@ export async function stopTimer(
 	rounding: { step: number; direction: RoundingDirection } = { step: 0, direction: 'down' }
 ) {
 	const running = await getRunningEntry();
-	if (!running) throw new Error('Kein Timer läuft.');
+	if (!running) throw new Error('No timer is running.');
 	const now = new Date();
 	const start = new Date(running.startTime).getTime();
 	const seconds = Math.max(0, (now.getTime() - start) / 1000);
