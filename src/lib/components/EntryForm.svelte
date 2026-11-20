@@ -13,6 +13,7 @@
 	} from '@lucide/svelte';
 	import { addDays, startOfWeek } from '$lib/date';
 	import { formatCents, formatDuration, formatTime, toDatetimeLocal } from '$lib/format';
+	import { locale, t } from '$lib/i18n';
 	import { nearestDirection, roundDuration } from '$lib/rounding';
 	import type { PageData } from '../../routes/entry/$types';
 
@@ -156,8 +157,8 @@
 	}
 
 	const eyebrow = $derived(
-		day.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' }) +
-			(isToday ? ' · heute' : '')
+		day.toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' }) +
+			(isToday ? ` · ${t('today')}` : '')
 	);
 </script>
 
@@ -168,7 +169,7 @@
 	use:enhance={({ cancel }) => {
 		addDraft();
 		if (!jobId) {
-			error = 'Bitte zuerst einen Job anlegen.';
+			error = t('Please create a job first.');
 			cancel();
 			return;
 		}
@@ -176,9 +177,8 @@
 		return async ({ result }) => {
 			saving = false;
 			if (result.type === 'success') onSaved();
-			else if (result.type === 'failure')
-				error = String(result.data?.error ?? 'Speichern fehlgeschlagen.');
-			else error = 'Speichern fehlgeschlagen.';
+			else if (result.type === 'failure') error = String(result.data?.error ?? t('Saving failed.'));
+			else error = t('Saving failed.');
 		};
 	}}
 >
@@ -193,14 +193,14 @@
 		<div class="flex flex-col gap-1.5">
 			<p class="eyebrow">{eyebrow}</p>
 			<h2 id="entry-sheet-title" class="text-xl font-semibold tracking-tight sm:text-2xl">
-				{editing ? 'Eintrag bearbeiten' : 'Eintrag nachtragen'}
+				{editing ? t('Edit entry') : t('Add entry')}
 			</h2>
 		</div>
 		<div class="flex items-center gap-1.5">
 			<button
 				type="button"
 				class="grid size-8.5 place-items-center rounded-full border border-line hover:border-muted max-sm:hidden"
-				aria-label="Vorheriger Tag"
+				aria-label={t('Previous day')}
 				onclick={() => onDateChange(isoDate(addDays(day, -1)))}
 			>
 				<ChevronLeft size={15} />
@@ -208,7 +208,7 @@
 			<button
 				type="button"
 				class="grid size-8.5 place-items-center rounded-full border border-line hover:border-muted disabled:opacity-30 max-sm:hidden"
-				aria-label="Nächster Tag"
+				aria-label={t('Next day')}
 				disabled={isToday}
 				onclick={() => onDateChange(isoDate(addDays(day, 1)))}
 			>
@@ -217,7 +217,7 @@
 			<button
 				type="button"
 				class="grid size-8.5 place-items-center rounded-full bg-raised hover:bg-line-strong"
-				aria-label="Schließen"
+				aria-label={t('Close')}
 				onclick={onClose}
 			>
 				<X size={15} />
@@ -230,14 +230,14 @@
 			<p
 				class="rounded-xl border border-dashed border-line px-4 py-8 text-center text-sm text-muted"
 			>
-				Noch keine Jobs. <a href="/jobs" class="text-accent underline underline-offset-2"
-					>Leg zuerst einen an.</a
+				{t('No jobs yet.')}
+				<a href="/jobs" class="text-accent underline underline-offset-2">{t('Create one first.')}</a
 				>
 			</p>
 		{/if}
 
 		<!-- Day picker (phone) -->
-		<div class="grid grid-cols-7 gap-1.5 sm:hidden" role="group" aria-label="Tag wählen">
+		<div class="grid grid-cols-7 gap-1.5 sm:hidden" role="group" aria-label={t('Choose day')}>
 			{#each weekDays as d (d.getTime())}
 				{@const iso = isoDate(d)}
 				{@const active = iso === data.date}
@@ -253,7 +253,7 @@
 					<span
 						class="font-mono text-[10px] tracking-wider {active ? 'text-ink/60' : 'text-muted'}"
 					>
-						{d.toLocaleDateString('de-DE', { weekday: 'short' }).slice(0, 2).toUpperCase()}
+						{d.toLocaleDateString(locale(), { weekday: 'short' }).slice(0, 2).toUpperCase()}
 					</span>
 					<span class="font-mono text-base font-semibold">{d.getDate()}</span>
 				</button>
@@ -261,10 +261,12 @@
 		</div>
 
 		<!-- Day timeline (desktop) -->
-		<section class="flex flex-col gap-2.5 max-sm:hidden" aria-label="Dein Tag">
+		<section class="flex flex-col gap-2.5 max-sm:hidden" aria-label={t('Your day')}>
 			<div class="flex justify-between">
-				<span class="eyebrow text-[10px]">Dein Tag</span>
-				<span class="font-mono text-[11px] text-muted">bisher {formatDuration(dayTotal)}</span>
+				<span class="eyebrow text-[10px]">{t('Your day')}</span>
+				<span class="font-mono text-[11px] text-muted"
+					>{t('so far {duration}', { duration: formatDuration(dayTotal) })}</span
+				>
 			</div>
 			<div class="relative h-4" aria-hidden="true">
 				{#each ticks as t (t)}
@@ -291,7 +293,7 @@
 						style:width="{pct(en) - pct(s)}%"
 						title="{e.jobName}: {formatTime(new Date(e.start))} – {e.end
 							? formatTime(new Date(e.end))
-							: 'läuft'}"
+							: t('running')}"
 					>
 						{#if en - s >= 90}<span class="truncate">{e.jobName}</span>{/if}
 					</div>
@@ -311,7 +313,8 @@
 				{/if}
 			</div>
 			<p class="flex items-center gap-1.5 text-xs text-muted">
-				<MoveHorizontal size={13} /> Freie Zeit anklicken, um den Block dorthin zu setzen
+				<MoveHorizontal size={13} />
+				{t('Click free time to place the block there')}
 			</p>
 		</section>
 
@@ -335,7 +338,7 @@
 				</span>
 			</label>
 			<label class="flex min-w-0 flex-col gap-1.5">
-				<span class="text-xs text-muted">Projekt</span>
+				<span class="text-xs text-muted">{t('Project')}</span>
 				<span
 					class="flex h-11 items-center rounded-[10px] border border-line-strong bg-bg px-3 focus-within:border-accent"
 				>
@@ -345,7 +348,7 @@
 						disabled={!jobProjects.length}
 						class="w-full min-w-0 bg-transparent text-sm outline-none disabled:text-muted"
 					>
-						<option value="">{jobProjects.length ? 'Kein Projekt' : '—'}</option>
+						<option value="">{jobProjects.length ? t('No project') : '—'}</option>
 						{#each jobProjects as p (p.id)}<option value={String(p.id)}>{p.name}</option>{/each}
 					</select>
 				</span>
@@ -355,7 +358,7 @@
 		<div class="flex flex-col gap-2.5">
 			<div class="flex items-end gap-2.5">
 				<label class="flex min-w-0 flex-1 flex-col gap-1.5">
-					<span class="text-xs text-muted">Start</span>
+					<span class="text-xs text-muted">{t('Start')}</span>
 					<input
 						type="time"
 						name="start"
@@ -366,7 +369,7 @@
 					/>
 				</label>
 				<label class="flex min-w-0 flex-1 flex-col gap-1.5">
-					<span class="text-xs text-muted">Ende</span>
+					<span class="text-xs text-muted">{t('End')}</span>
 					<input
 						type="time"
 						name="end"
@@ -377,7 +380,7 @@
 					/>
 				</label>
 			</div>
-			<div class="flex flex-wrap items-center gap-1.5" role="group" aria-label="Dauer">
+			<div class="flex flex-wrap items-center gap-1.5" role="group" aria-label={t('Duration')}>
 				{#each QUICK as q (q)}
 					<button
 						type="button"
@@ -390,19 +393,22 @@
 						{q < 60 ? `${q}m` : `${Math.floor(q / 60)}h${q % 60 ? ` ${q % 60}m` : ''}`}
 					</button>
 				{/each}
-				{#if overlaps}<span class="ml-auto text-xs text-red-300"
-						>Überschneidet sich mit einem Eintrag</span
+				{#if overlaps}<span class="ml-auto text-xs text-red-300">{t('Overlaps with an entry')}</span
 					>{/if}
 			</div>
 			{#if duration}
-				<div class="flex flex-wrap items-center gap-1.5" role="group" aria-label="Dauer runden">
-					<span class="mr-0.5 text-[11px] text-muted">Runden</span>
+				<div
+					class="flex flex-wrap items-center gap-1.5"
+					role="group"
+					aria-label={t('Round duration')}
+				>
+					<span class="mr-0.5 text-[11px] text-muted">{t('Round')}</span>
 					{#each ROUND as r (r.step)}
 						{@const target = rounded(r.step)}
 						<button
 							type="button"
 							aria-pressed={target === duration}
-							aria-label="Auf {r.label} runden: {hm(target)}"
+							aria-label={t('Round to {step}: {time}', { step: r.label, time: hm(target) })}
 							onclick={() => (end = toHHMM(Math.min(startMin + target, 23 * 60 + 59)))}
 							class="flex items-baseline gap-1.5 rounded-full px-2.5 py-1 text-[11px] transition-colors {target ===
 							duration
@@ -418,8 +424,8 @@
 
 		<section class="flex flex-col gap-2.5" aria-labelledby="activities-label">
 			<div class="flex items-baseline justify-between gap-3">
-				<h3 id="activities-label" class="eyebrow text-[10px]">Was hast du gemacht?</h3>
-				<span class="text-[11px] text-muted">erscheint im Stundennachweis</span>
+				<h3 id="activities-label" class="eyebrow text-[10px]">{t('What did you do?')}</h3>
+				<span class="text-[11px] text-muted">{t('appears in the timesheet')}</span>
 			</div>
 			<div
 				class="flex flex-col gap-1 rounded-xl border border-line-strong bg-bg p-2 focus-within:border-accent"
@@ -432,12 +438,12 @@
 							{#if item.todoId}<ListTodo
 									size={13}
 									class="text-muted"
-									aria-label="aus Aufgaben"
+									aria-label={t('from tasks')}
 								/>{/if}
 							<button
 								type="button"
 								class="rounded p-0.5 text-muted hover:text-fg sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"
-								aria-label="„{item.text}“ entfernen"
+								aria-label={t('Remove “{text}”', { text: item.text })}
 								onclick={() => items.splice(i, 1)}
 							>
 								<X size={14} />
@@ -447,13 +453,13 @@
 				</ul>
 				<label class="flex items-center gap-2.5 px-2 py-1.5">
 					<span class="font-mono text-sm text-accent" aria-hidden="true">–</span>
-					<span class="sr-only">Tätigkeit hinzufügen</span>
+					<span class="sr-only">{t('Add activity')}</span>
 					<input
 						type="text"
 						bind:value={draft}
 						placeholder={items.length
-							? 'Weitere Tätigkeit … (Enter)'
-							: 'z. B. Kassenabschluss gemacht (Enter)'}
+							? t('Another activity … (Enter)')
+							: t('e.g. Closed the till (Enter)')}
 						class="w-full bg-transparent text-sm outline-none placeholder:text-muted/60"
 						onkeydown={(e) => {
 							if (e.key === 'Enter') {
@@ -467,7 +473,7 @@
 			{#if suggestions.length}
 				<div class="flex flex-wrap items-center gap-1.5">
 					<span class="flex items-center gap-1.5 text-xs text-muted"
-						><ListTodo size={13} /> Aus Aufgaben:</span
+						><ListTodo size={13} /> {t('From tasks:')}</span
 					>
 					{#each suggestions as todo (todo.id)}
 						<button
@@ -485,19 +491,19 @@
 		{#if data.templates.length && !editing}
 			<div class="flex flex-wrap items-center gap-1.5">
 				<span class="flex items-center gap-1.5 text-xs text-muted"
-					><History size={13} /> Wie zuletzt:</span
+					><History size={13} /> {t('Like last time:')}</span
 				>
-				{#each data.templates as t (`${t.jobId}-${t.start}-${t.end}`)}
+				{#each data.templates as tpl (`${tpl.jobId}-${tpl.start}-${tpl.end}`)}
 					<button
 						type="button"
 						class="rounded-full border border-line-strong px-2.5 py-1 text-xs hover:border-muted"
 						onclick={() => {
-							jobId = t.jobId;
-							start = t.start;
-							end = t.end;
+							jobId = tpl.jobId;
+							start = tpl.start;
+							end = tpl.end;
 						}}
 					>
-						{t.jobName} · {t.start}–{t.end}
+						{tpl.jobName} · {tpl.start}–{tpl.end}
 					</button>
 				{/each}
 			</div>
@@ -520,7 +526,11 @@
 					duration * 60
 				)}{#if rateCents}{` · ${formatCents((duration / 60) * rateCents)}`}{/if}
 			</span>
-			<span class="text-xs text-muted">Tag danach: {formatDuration(dayTotal + duration * 60)}</span>
+			<span class="text-xs text-muted"
+				>{t('Day total after: {duration}', {
+					duration: formatDuration(dayTotal + duration * 60)
+				})}</span
+			>
 		</div>
 		<button
 			type="submit"
@@ -528,9 +538,9 @@
 			class="flex h-12 shrink-0 items-center gap-2 rounded-full bg-accent px-6 text-sm font-semibold text-ink hover:brightness-95 disabled:opacity-50"
 		>
 			<Check size={16} />
-			{#if editing}<span class="sm:hidden">Speichern</span><span class="max-sm:hidden"
-					>Änderungen speichern</span
-				>{:else}Eintrag speichern{/if}
+			{#if editing}<span class="sm:hidden">{t('Save')}</span><span class="max-sm:hidden"
+					>{t('Save changes')}</span
+				>{:else}{t('Save entry')}{/if}
 		</button>
 	</footer>
 </form>

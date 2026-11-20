@@ -3,6 +3,7 @@
 	import { enhance } from '$app/forms';
 	import { ArrowDown, ArrowUp, Square } from '@lucide/svelte';
 	import { formatCents, formatTime } from '$lib/format';
+	import { t } from '$lib/i18n';
 	import {
 		ROUNDING_STEPS,
 		nearestDirection,
@@ -55,8 +56,8 @@
 		const down = roundDuration(elapsedSeconds, step, 'down');
 		const up = roundDuration(elapsedSeconds, step, 'up');
 		return [
-			{ dir: 'down' as const, label: 'Abrunden', icon: ArrowDown, seconds: down },
-			{ dir: 'up' as const, label: 'Aufrunden', icon: ArrowUp, seconds: up }
+			{ dir: 'down' as const, label: t('Round down'), icon: ArrowDown, seconds: down },
+			{ dir: 'up' as const, label: t('Round up'), icon: ArrowUp, seconds: up }
 		].filter((o, i, all) => i === 0 || o.seconds !== all[0].seconds);
 	});
 	// If both directions land on the same value (exact multiple / under one step), there is
@@ -104,15 +105,18 @@
 		</div>
 
 		<header class="flex flex-col gap-1.5">
-			<p class="eyebrow">Eintrag abschließen · {jobName}</p>
-			<h2 id="stop-title" class="text-xl font-semibold tracking-tight">Welche Zeit buchen?</h2>
+			<p class="eyebrow">{t('Finish entry')} · {jobName}</p>
+			<h2 id="stop-title" class="text-xl font-semibold tracking-tight">
+				{t('Which time to book?')}
+			</h2>
 			<p class="font-mono text-[13px] text-muted tabular-nums">
-				Gemessen {hms(elapsedSeconds)} · {formatTime(startTime)} – {endAt(elapsedSeconds)}
+				{t('Measured')}
+				{hms(elapsedSeconds)} · {formatTime(startTime)} – {endAt(elapsedSeconds)}
 			</p>
 		</header>
 
 		<fieldset class="flex flex-col gap-2.5">
-			<legend class="pb-2.5 eyebrow">Runden auf</legend>
+			<legend class="pb-2.5 eyebrow">{t('Round to')}</legend>
 			<div class="grid grid-cols-4 gap-1 rounded-xl bg-bg p-1">
 				{#each ROUNDING_STEPS as s (s)}
 					<label
@@ -129,7 +133,7 @@
 							onchange={() => pickStep(s)}
 							class="sr-only"
 						/>
-						{roundingLabel(s)}
+						{t(roundingLabel(s))}
 					</label>
 				{/each}
 			</div>
@@ -137,7 +141,7 @@
 
 		{#if options.length}
 			<fieldset class="grid gap-2.5 {options.length > 1 ? 'grid-cols-2' : ''}">
-				<legend class="sr-only">Richtung</legend>
+				<legend class="sr-only">{t('Direction')}</legend>
 				{#each options as o (o.dir)}
 					<label
 						class="flex cursor-pointer flex-col gap-1 rounded-2xl border p-4 transition-colors has-focus-visible:outline-2 has-focus-visible:outline-accent {direction ===
@@ -159,13 +163,13 @@
 								: 'text-muted'}"
 						>
 							<o.icon size={13} aria-hidden="true" />
-							{options.length > 1 ? o.label : 'Gerundet'}
+							{options.length > 1 ? o.label : t('Rounded')}
 						</span>
 						<span class="font-mono text-[28px] font-medium tracking-tight tabular-nums"
 							>{hm(o.seconds)}</span
 						>
 						<span class="flex flex-wrap gap-x-2 font-mono text-xs text-muted tabular-nums">
-							<span>bis {endAt(o.seconds)}</span>
+							<span>{t('until {time}', { time: endAt(o.seconds) })}</span>
 							{#if rateCents}<span class="text-fg/80"
 									>{formatCents((o.seconds / 3600) * rateCents)}</span
 								>{/if}
@@ -175,12 +179,12 @@
 			</fieldset>
 		{:else}
 			<div class="flex flex-col gap-1 rounded-2xl border border-accent bg-accent/[0.06] p-4">
-				<span class="text-xs text-accent">Exakt wie gemessen</span>
+				<span class="text-xs text-accent">{t('Exactly as measured')}</span>
 				<span class="font-mono text-[28px] font-medium tracking-tight tabular-nums"
 					>{hm(elapsedSeconds)}</span
 				>
 				<span class="flex flex-wrap gap-x-2 font-mono text-xs text-muted tabular-nums">
-					<span>bis {endAt(elapsedSeconds)}</span>
+					<span>{t('until {time}', { time: endAt(elapsedSeconds) })}</span>
 					{#if rateCents}<span class="text-fg/80"
 							>{formatCents((elapsedSeconds / 3600) * rateCents)}</span
 						>{/if}
@@ -190,10 +194,11 @@
 
 		<p class="-mt-2 text-[13px] text-muted" aria-live="polite">
 			{#if step && Math.abs(diff) >= 60}
-				{diff > 0 ? '+' : '−'}{Math.round(Math.abs(diff) / 60)} min gegenüber der gemessenen Zeit. Der
-				Start bleibt, das Ende wird angepasst.
+				{t('{diff} min compared to the measured time. The start stays, the end is adjusted.', {
+					diff: `${diff > 0 ? '+' : '−'}${Math.round(Math.abs(diff) / 60)}`
+				})}
 			{:else}
-				Start und Ende werden so gespeichert, wie sie gemessen wurden.
+				{t('Start and end are saved as measured.')}
 			{/if}
 		</p>
 
@@ -203,7 +208,7 @@
 				onclick={onClose}
 				class="rounded-full px-5 py-3 text-sm font-medium text-muted hover:text-fg"
 			>
-				Weiterlaufen lassen
+				{t('Keep running')}
 			</button>
 			<button
 				type="submit"
@@ -211,7 +216,7 @@
 				class="flex items-center justify-center gap-2.5 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-ink hover:brightness-95 disabled:opacity-60"
 			>
 				<Square size={12} class="fill-ink" aria-hidden="true" />
-				{hm(booked)} buchen & stoppen
+				{t('Book {time} & stop', { time: hm(booked) })}
 			</button>
 		</div>
 	</form>

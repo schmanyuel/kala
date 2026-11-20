@@ -8,11 +8,13 @@ import {
 	listOpenTodos,
 	listProjects,
 	listRecentEntries,
+	getLang,
 	listWageRates,
 	updateEntry
 } from '$lib/server/db/queries';
 import { endOfDay, startOfDay } from '$lib/date';
 import { toDatetimeLocal } from '$lib/format';
+import { LOCALES, translate, type Lang } from '$lib/i18n';
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_RE = /^\d{2}:\d{2}$/;
@@ -29,6 +31,7 @@ export const load: PageServerLoad = async ({ url }) => {
 			: toDatetimeLocal(editEntry?.startTime ?? new Date()).slice(0, 10);
 	const day = new Date(`${date}T00:00`);
 
+	const lang = await getLang();
 	const [dayEntriesAll, jobs, projects, todos, recent] = await Promise.all([
 		listEntriesBetween(startOfDay(day), endOfDay(day)),
 		listJobs(),
@@ -64,7 +67,9 @@ export const load: PageServerLoad = async ({ url }) => {
 			combos.set(key, {
 				jobId: e.jobId,
 				jobName: e.job.name,
-				weekday: e.startTime.toLocaleDateString('de-DE', { weekday: 'short' }).replace('.', ''),
+				weekday: e.startTime
+					.toLocaleDateString(LOCALES[lang], { weekday: 'short' })
+					.replace('.', ''),
 				start,
 				end,
 				count: 1
@@ -115,7 +120,8 @@ type EntryInput = {
 };
 
 /** Parses and validates the entry form shared by create and update. */
-function parseEntryForm(form: FormData): EntryInput | { error: string } {
+function parseEntryForm(form: FormData, lang: Lang): EntryInput | { error: string } {
+	const t = (key: string) => translate(lang, key);
 	const jobId = Number(form.get('jobId'));
 	const projectIdRaw = String(form.get('projectId') ?? '');
 	const date = String(form.get('date') ?? '');
@@ -127,14 +133,14 @@ function parseEntryForm(form: FormData): EntryInput | { error: string } {
 		.filter(Boolean);
 	const todoIds = form.getAll('todoId').map(Number).filter(Boolean);
 
-	if (!jobId) return { error: 'Bitte einen Job auswählen.' };
+	if (!jobId) return { error: t('Please select a job.') };
 	if (!DATE_RE.test(date) || !TIME_RE.test(start) || !TIME_RE.test(end)) {
-		return { error: 'Bitte Datum, Start und Ende angeben.' };
+		return { error: t('Please enter date, start and end.') };
 	}
 	const startTime = new Date(`${date}T${start}`);
 	const endTime = new Date(`${date}T${end}`);
-	if (endTime <= startTime) return { error: 'Ende muss nach dem Start liegen.' };
-	if (startTime > new Date()) return { error: 'Der Eintrag liegt in der Zukunft.' };
+	if (endTime <= startTime) return { error: t('End must be after the start.') };
+	if (startTime > new Date()) return { error: t('The entry is in the future.') };
 
 	return {
 		jobId,
@@ -153,7 +159,7 @@ const sameMinute = (a: Date, b: Date) => toDatetimeLocal(a) === toDatetimeLocal(
 
 export const actions: Actions = {
 	create: async ({ request }) => {
-		const input = parseEntryForm(await request.formData());
+		const input = parseEntryForm(await request.formData(), await getLang());
 		if ('error' in input) return fail(400, { error: input.error });
 		await createManualEntry({ ...input, note: null });
 		return { success: true };
@@ -163,8 +169,9 @@ export const actions: Actions = {
 		const form = await request.formData();
 		const id = Number(form.get('id'));
 		const existing = id ? await getEntryForEdit(id) : null;
-		if (!existing) return fail(404, { error: 'Eintrag nicht gefunden.' });
-		const input = parseEntryForm(form);
+		if (!existing) return fail(404, { error: translate(await getLang(), 'Entry not found.') });
+		const lang = await getLang();
+		const input = parseEntryForm(form, lang);
 		if ('error' in input) return fail(400, { error: input.error });
 		const timesUnchanged =
 			sameMinute(input.startTime, existing.startTime) &&

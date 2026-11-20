@@ -1,14 +1,13 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { t } from '$lib/i18n';
 	import EntryForm from '$lib/components/EntryForm.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 </script>
 
-<svelte:head
-	><title>kala · {data.editing ? 'Eintrag bearbeiten' : 'Eintrag nachtragen'}</title></svelte:head
->
+<svelte:head><title>kala · {data.editing ? t('Edit entry') : t('Add entry')}</title></svelte:head>
 
 <div class="mx-auto flex max-w-[540px] flex-col rounded-2xl bg-surface">
 	<EntryForm
