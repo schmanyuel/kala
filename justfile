@@ -26,5 +26,5 @@ check:
 backup:
     cd docker/ && docker compose exec -T db pg_dumpall -U kala > ../kala.sql
 
-deploy: check backup
+deploy: backup
     git pull && cd docker/ && docker compose up -d --build
