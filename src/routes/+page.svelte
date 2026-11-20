@@ -430,7 +430,7 @@
 									'var(--color-muted)'}
 								aria-hidden="true"
 							></span>
-							<span class="sr-only">Job der Aufgabe</span>
+							<span class="sr-only">{t('Job of the task')}</span>
 							<select
 								name="jobId"
 								bind:value={todoJobId}
@@ -505,7 +505,7 @@
 													<label
 														class="flex items-center gap-1.5 rounded-full bg-raised py-1 pr-1.5 pl-2.5"
 													>
-														<span class="sr-only">Job der Aufgabe</span>
+														<span class="sr-only">{t('Job of the task')}</span>
 														<select
 															name="jobId"
 															value={todo.jobId === null ? '' : String(todo.jobId)}

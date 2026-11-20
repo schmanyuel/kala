@@ -58,7 +58,7 @@ export const timeEntries = pgTable('time_entries', {
 	startTime: timestamp('start_time', { withTimezone: true }).notNull(),
 	endTime: timestamp('end_time', { withTimezone: true }),
 	note: text('note'),
-	// What was done during the entry, one item per line (shown in the Stundennachweis).
+	// What was done during the entry, one item per line (shown in the timesheet).
 	activities: text('activities')
 		.array()
 		.notNull()

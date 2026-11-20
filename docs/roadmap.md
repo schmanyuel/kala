@@ -31,8 +31,9 @@ pay (Gehalt) from an hourly wage, and see a dashboard overview.
 - **Money** stored as integer cents, never floats.
 - **Historized wage rates** so a job's hourly rate can change over time without
   rewriting history.
-- **English UI with a German option** — the app is currently German-only. It moves
-  to English as the default language, with a switch between English and German.
+- **English UI with a German option** — English is the default language, with a
+  switch between English and German (`settings.language`). English source strings
+  are the translation keys; `src/lib/de.ts` holds the German dictionary.
 
 ## Phases
 
@@ -65,7 +66,7 @@ entries for a date range.
 - Premium visual design pass, dark mode.
 - Possible Capacitor wrap if native/iOS need arises.
 
-### Phase 6 — English & language switch
+### Phase 6 — English & language switch ✅ done
 
 - Translate the UI to English and make English the default.
 - Language switch (English / Deutsch) in the settings, stored in the `settings` row

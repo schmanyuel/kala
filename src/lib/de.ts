@@ -267,5 +267,6 @@ export const de: Record<string, string> = {
 	Job: 'Job',
 	'Duration (h)': 'Dauer (h)',
 	Activities: 'Tätigkeiten',
-	'Gross (EUR)': 'Brutto (EUR)'
+	'Gross (EUR)': 'Brutto (EUR)',
+	'Job of the task': 'Job der Aufgabe'
 };

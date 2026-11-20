@@ -1,7 +1,7 @@
 {
 	"name": "kala",
 	"short_name": "kala",
-	"description": "Zeiterfassung & Gehaltsrechner",
+	"description": "Time tracking & pay calculator",
 	"start_url": "/",
 	"scope": "/",
 	"display": "standalone",

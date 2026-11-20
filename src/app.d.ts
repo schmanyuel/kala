@@ -8,7 +8,7 @@ declare global {
 			lang: import('$lib/i18n').Lang;
 		}
 		interface PageState {
-			/** Data for the "Eintrag nachtragen" sheet, opened via shallow routing. */
+			/** Data for the "Add entry" sheet, opened via shallow routing. */
 			entrySheet?: import('./routes/entry/$types').PageData;
 		}
 		// interface Platform {}
