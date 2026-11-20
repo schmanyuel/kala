@@ -2,6 +2,7 @@ import { and, count, desc, eq, gte, inArray, isNull, lte, or, sql } from 'drizzl
 import { db } from './index';
 import { jobs, projects, settings, timeEntries, todos, wageRates } from './schema';
 import { roundDuration, type RoundingDirection } from '$lib/rounding';
+import { isLang, type Lang } from '$lib/i18n';
 
 export async function listJobs() {
 	return db.query.jobs.findMany({
@@ -390,4 +391,17 @@ export async function updateStopRounding(minutes: number) {
 			target: settings.id,
 			set: { stopRoundingMinutes: minutes, updatedAt: new Date() }
 		});
+}
+
+export async function updateLanguage(language: Lang) {
+	await db
+		.insert(settings)
+		.values({ id: 1, language })
+		.onConflictDoUpdate({ target: settings.id, set: { language, updatedAt: new Date() } });
+}
+
+/** The UI/export language, for server code that has no layout data (actions, endpoints). */
+export async function getLang(): Promise<Lang> {
+	const { language } = await getSettings();
+	return isLang(language) ? language : 'en';
 }

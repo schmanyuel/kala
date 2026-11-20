@@ -3,6 +3,7 @@
 	import { CircleCheck, Minus, Plus } from '@lucide/svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import { formatDuration } from '$lib/format';
+	import { LANGS, locale, t, type Lang } from '$lib/i18n';
 	import { ROUNDING_STEPS, nearestDirection, roundDuration, roundingLabel } from '$lib/rounding';
 	import type { ActionData, PageData } from './$types';
 
@@ -28,23 +29,30 @@
 	};
 	const roundingDirty = $derived(rounding !== data.settings.stopRoundingMinutes);
 
+	let language = $state<Lang>('en');
+	$effect.pre(() => {
+		language = data.lang;
+	});
+	const LANG_NAMES: Record<Lang, string> = { en: 'English', de: 'Deutsch' };
+
 	const system = $derived([
-		{ label: 'Datenbank', value: 'PostgreSQL · verbunden', ok: true },
-		{ label: 'Einträge gesamt', value: data.entryCount.toLocaleString('de-DE') },
-		{ label: 'Version', value: data.version }
+		{ label: t('Database'), value: t('PostgreSQL · connected'), ok: true },
+		{ label: t('Total entries'), value: data.entryCount.toLocaleString(locale()) },
+		{ label: t('Version'), value: data.version }
 	]);
 </script>
 
-<svelte:head><title>kala · Einstellungen</title></svelte:head>
+<svelte:head><title>kala · {t('Settings')}</title></svelte:head>
 
 <div class="flex flex-col gap-7">
-	<PageHeader eyebrow="kala · self-hosted" title="Einstellungen">
-		{#if form?.success && !dirty && !roundingDirty}
+	<PageHeader eyebrow="kala · {t('self-hosted')}" title={t('Settings')}>
+		{#if form?.success && !dirty && !roundingDirty && language === data.lang}
 			<p
 				role="status"
 				class="flex items-center gap-2 rounded-full border border-accent/25 bg-accent/[0.08] px-3.5 py-2 text-[13px] font-medium text-accent"
 			>
-				<CircleCheck size={15} /> Gespeichert
+				<CircleCheck size={15} />
+				{t('Saved')}
 			</p>
 		{/if}
 	</PageHeader>
@@ -59,14 +67,53 @@
 	{/if}
 
 	<div class="flex max-w-190 flex-col">
+		<section class="grid gap-5 border-t border-line py-8 md:grid-cols-[240px_1fr] md:gap-12">
+			<div class="flex flex-col gap-1.5">
+				<h2 class="text-base font-semibold">{t('Language')}</h2>
+				<p class="text-[13px] leading-relaxed text-muted">
+					{t('Used for the interface, dates and exports on every device.')}
+				</p>
+			</div>
+			<form
+				method="POST"
+				action="?/updateLanguage"
+				use:enhance={() =>
+					async ({ update }) =>
+						update({ reset: false })}
+				class="flex flex-col gap-4"
+			>
+				<fieldset class="grid w-full max-w-sm grid-cols-2 gap-1 rounded-xl bg-surface p-1">
+					<legend class="sr-only">{t('Language')}</legend>
+					{#each LANGS as l (l)}
+						<label
+							class="cursor-pointer rounded-lg py-2.5 text-center text-sm transition-colors has-checked:bg-raised has-checked:font-semibold has-checked:text-fg has-focus-visible:outline-2 has-focus-visible:outline-accent {language ===
+							l
+								? ''
+								: 'text-muted hover:text-fg'}"
+						>
+							<input type="radio" name="language" value={l} bind:group={language} class="sr-only" />
+							{LANG_NAMES[l]}
+						</label>
+					{/each}
+				</fieldset>
+				<button
+					type="submit"
+					disabled={language === data.lang}
+					class="w-fit rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-ink hover:brightness-95 disabled:cursor-not-allowed disabled:bg-raised disabled:text-muted"
+				>
+					{t('Save')}
+				</button>
+			</form>
+		</section>
+
 		<section
 			id="soll-arbeitszeit"
 			class="grid gap-5 border-t border-line py-8 md:grid-cols-[240px_1fr] md:gap-12"
 		>
 			<div class="flex flex-col gap-1.5">
-				<h2 class="text-base font-semibold">Soll-Arbeitszeit</h2>
+				<h2 class="text-base font-semibold">{t('Weekly target')}</h2>
 				<p class="text-[13px] leading-relaxed text-muted">
-					Grundlage für Überstunden-Saldo und den Fortschritt im Dashboard.
+					{t('Basis for the overtime balance and the progress on the dashboard.')}
 				</p>
 			</div>
 			<form
@@ -81,13 +128,13 @@
 					<button
 						type="button"
 						class="grid w-14 place-items-center text-fg hover:text-accent"
-						aria-label="Eine Stunde weniger"
+						aria-label={t('One hour less')}
 						onclick={() => (hours = clamp(hours - 1))}
 					>
 						<Minus size={18} />
 					</button>
 					<label class="flex h-16 items-center gap-2 border-x border-line-strong px-6">
-						<span class="sr-only">Soll-Arbeitszeit pro Woche in Stunden</span>
+						<span class="sr-only">{t('Weekly target in hours')}</span>
 						<input
 							type="number"
 							name="weeklyTargetHours"
@@ -97,19 +144,19 @@
 							bind:value={hours}
 							class="w-[2.2em] [appearance:textfield] bg-transparent text-right font-mono text-[30px] font-medium tracking-tight outline-none [&::-webkit-inner-spin-button]:appearance-none"
 						/>
-						<span class="text-[13px] whitespace-nowrap text-muted">h / Woche</span>
+						<span class="text-[13px] whitespace-nowrap text-muted">{t('h / week')}</span>
 					</label>
 					<button
 						type="button"
 						class="grid w-14 place-items-center text-fg hover:text-accent"
-						aria-label="Eine Stunde mehr"
+						aria-label={t('One hour more')}
 						onclick={() => (hours = clamp(hours + 1))}
 					>
 						<Plus size={18} />
 					</button>
 				</div>
 				<div class="flex flex-wrap items-center gap-1.5">
-					<span class="mr-1 text-xs text-muted">Schnellwahl</span>
+					<span class="mr-1 text-xs text-muted">{t('Quick pick')}</span>
 					{#each QUICK as q (q)}
 						<button
 							type="button"
@@ -124,14 +171,16 @@
 					{/each}
 				</div>
 				<p class="text-[13px] text-muted">
-					≈ {formatDuration(((hours || 0) / 5) * 3600)} pro Tag bei 5 Arbeitstagen
+					{t('≈ {duration} per day over 5 working days', {
+						duration: formatDuration(((hours || 0) / 5) * 3600)
+					})}
 				</p>
 				<button
 					type="submit"
 					disabled={!dirty}
 					class="w-fit rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-ink hover:brightness-95 disabled:cursor-not-allowed disabled:bg-raised disabled:text-muted"
 				>
-					Speichern
+					{t('Save')}
 				</button>
 			</form>
 		</section>
@@ -141,10 +190,11 @@
 			class="grid gap-5 border-t border-line py-8 md:grid-cols-[240px_1fr] md:gap-12"
 		>
 			<div class="flex flex-col gap-1.5">
-				<h2 class="text-base font-semibold">Rundung beim Stoppen</h2>
+				<h2 class="text-base font-semibold">{t('Rounding when stopping')}</h2>
 				<p class="text-[13px] leading-relaxed text-muted">
-					Vorauswahl im Stopp-Dialog. Gerundet wird auf den nächsten Schritt, ab- oder aufrunden
-					kannst du dort trotzdem jedes Mal selbst wählen.
+					{t(
+						'Preselected in the stop dialog. Time is rounded to the nearest step, and you can still choose rounding down or up each time.'
+					)}
 				</p>
 			</div>
 			<form
@@ -156,7 +206,7 @@
 				class="flex flex-col gap-4"
 			>
 				<fieldset class="grid w-full max-w-sm grid-cols-4 gap-1 rounded-xl bg-surface p-1">
-					<legend class="sr-only">Rundungsschritt</legend>
+					<legend class="sr-only">{t('Rounding step')}</legend>
 					{#each ROUNDING_STEPS as s (s)}
 						<label
 							class="cursor-pointer rounded-lg py-2.5 text-center text-sm transition-colors has-checked:bg-raised has-checked:font-semibold has-checked:text-fg has-focus-visible:outline-2 has-focus-visible:outline-accent {rounding ===
@@ -171,21 +221,21 @@
 								bind:group={rounding}
 								class="sr-only"
 							/>
-							{roundingLabel(s)}
+							{t(roundingLabel(s))}
 						</label>
 					{/each}
 				</fieldset>
 				<p class="text-[13px] text-muted">
 					{rounding
-						? `Beispiel: 2:47 gemessen → ${example(rounding)} vorausgewählt`
-						: 'Einträge werden exakt so gespeichert, wie sie gemessen wurden.'}
+						? t('Example: 2:47 measured → {rounded} preselected', { rounded: example(rounding) })
+						: t('Entries are saved exactly as measured.')}
 				</p>
 				<button
 					type="submit"
 					disabled={!roundingDirty}
 					class="w-fit rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-ink hover:brightness-95 disabled:cursor-not-allowed disabled:bg-raised disabled:text-muted"
 				>
-					Speichern
+					{t('Save')}
 				</button>
 			</form>
 		</section>
@@ -195,9 +245,9 @@
 			class="grid gap-5 border-t border-line py-8 md:grid-cols-[240px_1fr] md:gap-12"
 		>
 			<div class="flex flex-col gap-1.5">
-				<h2 class="text-base font-semibold">System</h2>
+				<h2 class="text-base font-semibold">{t('System')}</h2>
 				<p class="text-[13px] leading-relaxed text-muted">
-					Deine Instanz läuft selbst gehostet. Daten bleiben bei dir.
+					{t('Your instance is self-hosted. Your data stays with you.')}
 				</p>
 			</div>
 			<dl>

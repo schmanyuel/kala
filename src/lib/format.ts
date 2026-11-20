@@ -1,3 +1,5 @@
+import { locale, type Lang } from './i18n';
+
 export function formatDuration(totalSeconds: number): string {
 	const hours = Math.floor(totalSeconds / 3600);
 	const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -9,16 +11,12 @@ export function formatSignedDuration(totalSeconds: number): string {
 	return `${sign}${formatDuration(Math.abs(totalSeconds))}`;
 }
 
-export function formatCents(cents: number): string {
-	return (cents / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
+export function formatCents(cents: number, lang?: Lang): string {
+	return (cents / 100).toLocaleString(locale(lang), { style: 'currency', currency: 'EUR' });
 }
 
-export function formatTime(date: Date): string {
-	return date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-}
-
-export function formatDate(date: Date): string {
-	return date.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
+export function formatTime(date: Date, lang?: Lang): string {
+	return date.toLocaleTimeString(locale(lang), { hour: '2-digit', minute: '2-digit' });
 }
 
 /** Formats a Date as a value for <input type="datetime-local">, in local time. */

@@ -80,6 +80,8 @@ export const settings = pgTable('settings', {
 		.default('40'),
 	/** Rounding step preselected when stopping the timer (0 = exact). */
 	stopRoundingMinutes: integer('stop_rounding_minutes').notNull().default(15),
+	/** UI and export language ('en' | 'de'), shared by every device. */
+	language: text('language').notNull().default('en'),
 	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
 });
 

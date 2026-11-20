@@ -2,6 +2,7 @@
 	import './layout.css';
 	import { page } from '$app/state';
 	import { connectRealtime } from '$lib/realtime';
+	import { t } from '$lib/i18n';
 	import EntrySheet from '$lib/components/EntrySheet.svelte';
 	import {
 		LayoutDashboard,
@@ -12,7 +13,11 @@
 		Settings
 	} from '@lucide/svelte';
 
-	let { children } = $props();
+	let { children, data } = $props();
+
+	$effect(() => {
+		document.documentElement.lang = data.lang;
+	});
 
 	$effect(() => connectRealtime());
 
@@ -24,12 +29,12 @@
 
 	const links = [
 		{ href: '/', label: 'Dashboard', icon: LayoutDashboard },
-		{ href: '/overview', label: 'Übersicht', icon: CalendarDays },
-		{ href: '/stats', label: 'Statistik', icon: ChartColumn },
+		{ href: '/overview', label: 'Overview', icon: CalendarDays },
+		{ href: '/stats', label: 'Statistics', icon: ChartColumn },
 		{ href: '/jobs', label: 'Jobs', icon: Briefcase },
 		{ href: '/export', label: 'Export', icon: FileDown }
 	];
-	const settingsLink = { href: '/settings', label: 'Einstellungen', icon: Settings };
+	const settingsLink = { href: '/settings', label: 'Settings', icon: Settings };
 </script>
 
 {#snippet navLink(link: (typeof links)[number])}
@@ -42,7 +47,7 @@
 			: 'text-muted hover:text-fg'}"
 	>
 		<link.icon size={17} class={active ? 'text-accent' : ''} />
-		<span>{link.label}</span>
+		<span>{t(link.label)}</span>
 	</a>
 {/snippet}
 
@@ -53,7 +58,7 @@
 	>
 		<a
 			href="/"
-			aria-label="kala · Dashboard"
+			aria-label="kala · {t('Dashboard')}"
 			class="flex items-center justify-center gap-3 rounded-[4px] bg-accent px-4 py-3 text-ink transition hover:brightness-95 lg:py-5"
 		>
 			<span
@@ -66,7 +71,7 @@
 		</a>
 		<nav
 			class="-mx-1 flex gap-0.5 overflow-x-auto px-1 lg:flex-col lg:overflow-visible"
-			aria-label="Hauptnavigation"
+			aria-label={t('Main navigation')}
 		>
 			{#each links as link (link.href)}
 				{@render navLink(link)}

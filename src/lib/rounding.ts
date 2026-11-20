@@ -7,7 +7,7 @@ export const isRoundingStep = (n: number): n is RoundingStep =>
 	(ROUNDING_STEPS as readonly number[]).includes(n);
 
 export const roundingLabel = (step: RoundingStep) =>
-	({ 0: 'Genau', 15: '¼ h', 30: '½ h', 60: '1 h' })[step];
+	({ 0: 'Exact', 15: '¼ h', 30: '½ h', 60: '1 h' })[step];
 
 /** Rounds a duration to a multiple of `step` minutes. Rounding down never goes below one
  *  step, so a short entry rounded down still keeps time on it. */

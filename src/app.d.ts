@@ -4,7 +4,9 @@ declare global {
 	namespace App {
 		// interface Error {}
 		// interface Locals {}
-		// interface PageData {}
+		interface PageData {
+			lang: import('$lib/i18n').Lang;
+		}
 		interface PageState {
 			/** Data for the "Eintrag nachtragen" sheet, opened via shallow routing. */
 			entrySheet?: import('./routes/entry/$types').PageData;
