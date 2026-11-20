@@ -20,6 +20,17 @@
 	let editingTodoId = $state<number | null>(null);
 	let stopOpen = $state(false);
 
+	// Hidden until mounted so a dismissed hint never flashes on load.
+	const TODO_HINT_KEY = 'kala:todo-hint-dismissed';
+	let showTodoHint = $state(false);
+	$effect(() => {
+		showTodoHint = localStorage.getItem(TODO_HINT_KEY) !== '1';
+	});
+	const dismissTodoHint = () => {
+		localStorage.setItem(TODO_HINT_KEY, '1');
+		showTodoHint = false;
+	};
+
 	const focusSelect = (node: HTMLInputElement) => {
 		node.focus();
 		node.select();
@@ -564,13 +575,25 @@
 						<p class="py-10 text-center text-sm text-muted">Keine offenen Aufgaben.</p>
 					{/each}
 
-					<p
-						class="mt-auto flex items-start gap-2.5 rounded-xl bg-bg p-3.5 text-xs leading-relaxed text-muted max-xl:mt-5"
-					>
-						<Sparkles size={15} class="mt-px shrink-0 text-accent" aria-hidden="true" />
-						Abgehakte Aufgaben landen automatisch im Tätigkeitsbericht des laufenden Eintrags – oder du
-						übernimmst sie beim Nachtragen.
-					</p>
+					{#if showTodoHint}
+						<div
+							class="mt-auto flex items-start gap-2.5 rounded-xl bg-bg p-3.5 text-xs leading-relaxed text-muted max-xl:mt-5"
+						>
+							<Sparkles size={15} class="mt-px shrink-0 text-accent" aria-hidden="true" />
+							<p class="flex-1">
+								Abgehakte Aufgaben landen automatisch im Tätigkeitsbericht des laufenden Eintrags –
+								oder du übernimmst sie beim Nachtragen.
+							</p>
+							<button
+								type="button"
+								onclick={dismissTodoHint}
+								class="-m-1 shrink-0 rounded-md p-1 hover:bg-ink/8 hover:text-ink"
+								aria-label="Hinweis schließen"
+							>
+								<X size={14} aria-hidden="true" />
+							</button>
+						</div>
+					{/if}
 				</div>
 			{:else}
 				<div id="panel-entries" role="tabpanel" aria-labelledby="tab-entries">
