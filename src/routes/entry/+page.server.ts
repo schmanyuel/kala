@@ -89,6 +89,7 @@ export const load: PageServerLoad = async ({ url }) => {
 			projectId: editEntry.projectId,
 			start: hhmm(editEntry.startTime),
 			end: hhmm(editEntry.endTime),
+			note: editEntry.note,
 			activities: editEntry.activities,
 			linkedTodos: editEntry.linkedTodos.map((t) => ({ id: t.id, text: t.text }))
 		},
@@ -115,6 +116,7 @@ type EntryInput = {
 	projectId: number | null;
 	startTime: Date;
 	endTime: Date;
+	note: string | null;
 	activities: string[];
 	todoIds: number[];
 };
@@ -127,6 +129,7 @@ function parseEntryForm(form: FormData, lang: Lang): EntryInput | { error: strin
 	const date = String(form.get('date') ?? '');
 	const start = String(form.get('start') ?? '');
 	const end = String(form.get('end') ?? '');
+	const note = String(form.get('note') ?? '').trim() || null;
 	const activities = form
 		.getAll('activity')
 		.map((a) => String(a).trim())
@@ -147,6 +150,7 @@ function parseEntryForm(form: FormData, lang: Lang): EntryInput | { error: strin
 		projectId: projectIdRaw ? Number(projectIdRaw) : null,
 		startTime,
 		endTime,
+		note,
 		activities,
 		todoIds
 	};
@@ -161,7 +165,7 @@ export const actions: Actions = {
 	create: async ({ request }) => {
 		const input = parseEntryForm(await request.formData(), await getLang());
 		if ('error' in input) return fail(400, { error: input.error });
-		await createManualEntry({ ...input, note: null });
+		await createManualEntry(input);
 		return { success: true };
 	},
 

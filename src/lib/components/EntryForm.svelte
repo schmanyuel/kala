@@ -56,6 +56,7 @@
 			todoId: editing.linkedTodos.find((t) => t.text === text)?.id
 		})) ?? []
 	);
+	let note = $state(editing?.note ?? '');
 	let draft = $state('');
 	let error = $state<string | null>(null);
 	let saving = $state(false);
@@ -487,6 +488,17 @@
 				</div>
 			{/if}
 		</section>
+
+		<label class="flex flex-col gap-1.5">
+			<span class="text-xs text-muted">{t('Note')}</span>
+			<input
+				type="text"
+				name="note"
+				bind:value={note}
+				placeholder={t('optional')}
+				class="h-11 rounded-[10px] border border-line-strong bg-bg px-3 text-sm outline-none placeholder:text-muted/60 focus:border-accent"
+			/>
+		</label>
 
 		{#if data.templates.length && !editing}
 			<div class="flex flex-wrap items-center gap-1.5">

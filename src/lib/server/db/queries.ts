@@ -174,6 +174,7 @@ export async function updateEntry(
 		projectId: number | null;
 		startTime: Date;
 		endTime: Date;
+		note: string | null;
 		activities: string[];
 		todoIds?: number[];
 	}
