@@ -1,7 +1,17 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { Check, Pencil, Plus, Sparkles, Square, Play, Trash2, X } from '@lucide/svelte';
-	import { formatCents, formatDuration, formatTime } from '$lib/format';
+	import {
+		Check,
+		CircleAlert,
+		Pencil,
+		Plus,
+		Sparkles,
+		Square,
+		Play,
+		Trash2,
+		X
+	} from '@lucide/svelte';
+	import { formatCents, formatDuration, formatTime, toDatetimeLocal } from '$lib/format';
 	import { editEntryHref, openEntrySheet } from '$lib/entry-sheet';
 	import { isoWeek } from '$lib/date';
 	import { locale, t } from '$lib/i18n';
@@ -14,6 +24,25 @@
 	let elapsedSeconds = $state(0);
 	let activeTab = $state<'todos' | 'entries'>('todos');
 	let activityDraft = $state('');
+	let editingStart = $state(false);
+	let startDraft = $state('');
+
+	function openStartEdit() {
+		if (!data.runningEntry) return;
+		startDraft = toDatetimeLocal(new Date(data.runningEntry.startTime));
+		editingStart = true;
+	}
+	function shiftStart(minutes: number) {
+		const d = new Date(startDraft);
+		if (Number.isNaN(d.getTime())) return;
+		startDraft = toDatetimeLocal(new Date(Math.min(d.getTime() + minutes * 60_000, Date.now())));
+	}
+	const startDraftIso = $derived.by(() => {
+		const d = new Date(startDraft);
+		return Number.isNaN(d.getTime()) ? '' : d.toISOString();
+	});
+	const monthLabel = (m: string) =>
+		new Date(`${m}-01T00:00`).toLocaleDateString(locale(), { month: 'long', year: 'numeric' });
 	let todoDraft = $state('');
 	// New todos default to the job the timer is running for.
 	const initialTodoJob = () => (data.runningEntry ? String(data.runningEntry.jobId) : '');
@@ -134,6 +163,19 @@
 		</a>
 	</header>
 
+	{#if data.unbilled.length}
+		<a
+			href="/export#billing"
+			class="flex items-center gap-3 rounded-xl border border-accent/40 bg-accent/[0.06] px-4 py-3 text-sm hover:border-accent"
+		>
+			<CircleAlert size={16} class="shrink-0 text-accent" aria-hidden="true" />
+			<span class="flex-1">
+				{t('Still to bill: {months}', { months: data.unbilled.map(monthLabel).join(', ') })}
+			</span>
+			<span class="text-xs text-muted">{t('Export')} →</span>
+		</a>
+	{/if}
+
 	{#if form?.error}
 		<p
 			role="alert"
@@ -154,9 +196,61 @@
 						class="flex items-center gap-2 font-mono text-xs font-medium tracking-[0.1em] uppercase"
 					>
 						<span class="size-2.5 animate-pulse rounded-full bg-ink" aria-hidden="true"></span>
-						{t('Running since {time}', { time: formatTime(new Date(data.runningEntry.startTime)) })} ·
-						{data.runningEntry.job.name}
+						<button
+							type="button"
+							class="inline-flex items-center gap-1.5 rounded underline decoration-ink/30 underline-offset-4 hover:decoration-ink"
+							aria-expanded={editingStart}
+							onclick={() => (editingStart ? (editingStart = false) : openStartEdit())}
+							title={t('Change start time')}
+						>
+							{t('Running since {time}', {
+								time: formatTime(new Date(data.runningEntry.startTime))
+							})}
+							<Pencil size={11} aria-hidden="true" />
+						</button>
+						· {data.runningEntry.job.name}
 					</p>
+					{#if editingStart}
+						<form
+							method="POST"
+							action="?/updateStart"
+							use:enhance={() =>
+								async ({ result, update }) => {
+									await update();
+									if (result.type === 'success') editingStart = false;
+								}}
+							class="flex flex-wrap items-center gap-1.5"
+						>
+							<input type="hidden" name="startTime" value={startDraftIso} />
+							<button
+								type="button"
+								class="rounded-full border border-ink/25 px-2.5 py-1.5 font-mono text-xs hover:bg-ink/10"
+								onclick={() => shiftStart(-15)}>−15</button
+							>
+							<input
+								type="datetime-local"
+								bind:value={startDraft}
+								max={toDatetimeLocal(new Date())}
+								aria-label={t('Start time')}
+								class="rounded-lg border border-ink/25 bg-transparent px-2.5 py-1 font-mono text-sm outline-none focus:border-ink"
+							/>
+							<button
+								type="button"
+								class="rounded-full border border-ink/25 px-2.5 py-1.5 font-mono text-xs hover:bg-ink/10"
+								onclick={() => shiftStart(15)}>+15</button
+							>
+							<button
+								class="rounded-full bg-ink px-3.5 py-1.5 text-xs font-semibold text-accent disabled:opacity-40"
+								disabled={!startDraftIso}>{t('Save')}</button
+							>
+							<button
+								type="button"
+								class="rounded-full p-1.5 hover:bg-ink/10"
+								aria-label={t('Cancel')}
+								onclick={() => (editingStart = false)}><X size={14} /></button
+							>
+						</form>
+					{/if}
 					<p
 						class="font-mono text-6xl leading-none font-medium tracking-[-0.06em] tabular-nums sm:text-8xl xl:text-[112px]"
 						aria-live="off"

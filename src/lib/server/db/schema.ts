@@ -100,3 +100,10 @@ export const todosRelations = relations(todos, ({ one }) => ({
 	job: one(jobs, { fields: [todos.jobId], references: [jobs.id] }),
 	entry: one(timeEntries, { fields: [todos.entryId], references: [timeEntries.id] })
 }));
+
+// Months (YYYY-MM, local time) that have already been billed. Past months with entries
+// that are not listed here show up as "still to bill".
+export const billedMonths = pgTable('billed_months', {
+	month: text('month').primaryKey(),
+	billedAt: timestamp('billed_at', { withTimezone: true }).notNull().defaultNow()
+});

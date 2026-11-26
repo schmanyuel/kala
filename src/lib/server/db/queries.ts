@@ -1,6 +1,6 @@
 import { and, count, desc, eq, gte, inArray, isNull, lte, or, sql } from 'drizzle-orm';
 import { db } from './index';
-import { jobs, projects, settings, timeEntries, todos, wageRates } from './schema';
+import { billedMonths, jobs, projects, settings, timeEntries, todos, wageRates } from './schema';
 import { roundDuration, type RoundingDirection } from '$lib/rounding';
 import { isLang, type Lang } from '$lib/i18n';
 
@@ -109,6 +109,41 @@ export async function startTimer(jobId: number, projectId: number | null, note: 
 		.values({ jobId, projectId, startTime: new Date(), note })
 		.returning();
 	return entry;
+}
+
+/** Moves the start of the running timer. The new start must lie in the past. */
+export async function updateRunningStart(startTime: Date) {
+	const running = await getRunningEntry();
+	if (!running) throw new Error('No timer is running.');
+	if (Number.isNaN(startTime.getTime()) || startTime.getTime() > Date.now())
+		throw new Error('The start time must lie in the past.');
+	await db
+		.update(timeEntries)
+		.set({ startTime, updatedAt: new Date() })
+		.where(eq(timeEntries.id, running.id));
+}
+
+/** Past months (YYYY-MM, server-local time) that have entries but are not billed yet. */
+export async function listUnbilledMonths(now = new Date()) {
+	const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+	const month = sql<string>`to_char(${timeEntries.startTime} at time zone ${tz}, 'YYYY-MM')`;
+	const current = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+	const rows = await db
+		.selectDistinct({ month })
+		.from(timeEntries)
+		.where(
+			sql`${month} < ${current} and ${month} not in (select ${billedMonths.month} from ${billedMonths})`
+		);
+	return rows.map((r) => r.month).sort();
+}
+
+export async function listBilledMonths(limit = 6) {
+	return db.select().from(billedMonths).orderBy(desc(billedMonths.month)).limit(limit);
+}
+
+export async function setMonthBilled(month: string, billed: boolean) {
+	if (billed) await db.insert(billedMonths).values({ month }).onConflictDoNothing();
+	else await db.delete(billedMonths).where(eq(billedMonths.month, month));
 }
 
 /** Stops the running timer. With a rounding step the booked duration is rounded and the

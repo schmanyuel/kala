@@ -11,11 +11,13 @@ import {
 	listEntriesBetween,
 	listJobs,
 	listTodos,
+	listUnbilledMonths,
 	removeActivity,
 	setTodoDone,
 	startTimer,
 	stopTimer,
 	summarizeEntries,
+	updateRunningStart,
 	updateTodo
 } from '$lib/server/db/queries';
 import { addDays, endOfDay, endOfMonth, startOfDay, startOfMonth, startOfWeek } from '$lib/date';
@@ -25,7 +27,7 @@ import { isRoundingStep } from '$lib/rounding';
 export const load: PageServerLoad = async () => {
 	const now = new Date();
 	const weekStart = startOfWeek(now);
-	const [jobs, runningEntry, todayEntries, weekEntries, monthEntries, settings, todos] =
+	const [jobs, runningEntry, todayEntries, weekEntries, monthEntries, settings, todos, unbilled] =
 		await Promise.all([
 			listJobs(),
 			getRunningEntry(),
@@ -33,7 +35,8 @@ export const load: PageServerLoad = async () => {
 			listEntriesBetween(weekStart, endOfDay(addDays(weekStart, 6))),
 			listEntriesBetween(startOfMonth(now), endOfMonth(now)),
 			getSettings(),
-			listTodos(startOfDay(now))
+			listTodos(startOfDay(now)),
+			listUnbilledMonths(now)
 		]);
 
 	const [todaySummary, weekSummary, monthSummary, minijobSummary] = await Promise.all([
@@ -75,6 +78,7 @@ export const load: PageServerLoad = async () => {
 		runningRateCents,
 		todayEntries,
 		todos,
+		unbilled,
 		todaySummary,
 		weekSummary,
 		monthSummary,
@@ -112,6 +116,17 @@ export const actions: Actions = {
 			await stopTimer({ step: isRoundingStep(step) ? step : 0, direction });
 		} catch (err) {
 			return failT(400, err instanceof Error ? err.message : 'Could not stop the timer.');
+		}
+		return { success: true };
+	},
+
+	updateStart: async ({ request }) => {
+		const form = await request.formData();
+		const start = new Date(String(form.get('startTime') ?? ''));
+		try {
+			await updateRunningStart(start);
+		} catch (err) {
+			return failT(400, err instanceof Error ? err.message : 'Could not change the start time.');
 		}
 		return { success: true };
 	},

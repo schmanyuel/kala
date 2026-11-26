@@ -50,6 +50,13 @@
       "when": 1795170248550,
       "tag": "0006_abnormal_supreme_intelligence",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1795708554134,
+      "tag": "0007_loud_rattler",
+      "breakpoints": true
     }
   ]
 }

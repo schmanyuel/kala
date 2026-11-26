@@ -268,5 +268,19 @@ export const de: Record<string, string> = {
 	'Duration (h)': 'Dauer (h)',
 	Activities: 'Tätigkeiten',
 	'Gross (EUR)': 'Brutto (EUR)',
-	'Job of the task': 'Job der Aufgabe'
+	'Job of the task': 'Job der Aufgabe',
+	// running start & billing
+	'Change start time': 'Startzeit ändern',
+	'Start time': 'Startzeit',
+	'The start time must lie in the past.': 'Die Startzeit muss in der Vergangenheit liegen.',
+	'Could not change the start time.': 'Startzeit konnte nicht geändert werden.',
+	'Still to bill: {months}': 'Noch abzurechnen: {months}',
+	'Still to bill': 'Noch abzurechnen',
+	'Select this month': 'Diesen Monat auswählen',
+	Billed: 'Abgerechnet',
+	'All past months are billed.': 'Alle vergangenen Monate sind abgerechnet.',
+	'Recently billed': 'Zuletzt abgerechnet',
+	'Mark as not billed': 'Als nicht abgerechnet markieren',
+	Undo: 'Rückgängig',
+	'Month is missing.': 'Monat fehlt.'
 };

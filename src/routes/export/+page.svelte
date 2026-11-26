@@ -1,6 +1,7 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
-	import { ArrowRight, Check, Download, Eye, FileText, Sheet } from '@lucide/svelte';
+	import { ArrowRight, Check, Download, RotateCcw, Eye, FileText, Sheet } from '@lucide/svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import { addDays, startOfMonth, startOfWeek } from '$lib/date';
 	import { formatCents, formatDuration, formatTime, toDatetimeLocal } from '$lib/format';
@@ -54,6 +55,13 @@
 		update({ jobs: selected });
 	}
 
+	const monthLabel = (m: string) =>
+		new Date(`${m}-01T00:00`).toLocaleDateString(locale(), { month: 'long', year: 'numeric' });
+	function selectMonth(m: string) {
+		const [y, mo] = m.split('-').map(Number);
+		update({ from: `${m}-01`, to: isoDate(new Date(y, mo, 0)) });
+	}
+
 	const perJobByName = $derived(new Map(data.perJob.map((p) => [p.name, p])));
 	const dayLabel = (d: Date) =>
 		new Date(d)
@@ -73,6 +81,55 @@
 
 	<div class="grid flex-1 gap-10 lg:grid-cols-[400px_1fr]">
 		<div class="flex flex-col gap-7.5">
+			<section id="billing" class="flex flex-col gap-2" aria-labelledby="billing-title">
+				<h2 id="billing-title" class="pb-1 eyebrow">{t('Still to bill')}</h2>
+				{#each data.unbilled as month (month)}
+					<div class="flex items-center gap-2 rounded-[10px] bg-surface py-1.5 pr-1.5 pl-3.5">
+						<button
+							type="button"
+							class="flex-1 text-left text-sm hover:underline"
+							title={t('Select this month')}
+							onclick={() => selectMonth(month)}>{monthLabel(month)}</button
+						>
+						<form method="POST" action="?/setBilled" use:enhance>
+							<input type="hidden" name="month" value={month} />
+							<input type="hidden" name="billed" value="1" />
+							<button
+								class="flex items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-medium hover:border-accent hover:text-accent"
+							>
+								<Check size={13} />
+								{t('Billed')}
+							</button>
+						</form>
+					</div>
+				{:else}
+					<p class="text-sm text-muted">{t('All past months are billed.')}</p>
+				{/each}
+				{#if data.billed.length}
+					<details class="text-xs text-muted">
+						<summary class="cursor-pointer py-1">{t('Recently billed')}</summary>
+						<ul class="flex flex-col">
+							{#each data.billed as month (month)}
+								<li class="flex items-center justify-between py-1 pl-3.5">
+									{monthLabel(month)}
+									<form method="POST" action="?/setBilled" use:enhance>
+										<input type="hidden" name="month" value={month} />
+										<input type="hidden" name="billed" value="0" />
+										<button
+											class="flex items-center gap-1 rounded-full px-2 py-1 hover:text-fg"
+											title={t('Mark as not billed')}
+										>
+											<RotateCcw size={12} />
+											{t('Undo')}
+										</button>
+									</form>
+								</li>
+							{/each}
+						</ul>
+					</details>
+				{/if}
+			</section>
+
 			<fieldset class="flex flex-col gap-3">
 				<legend class="pb-3 eyebrow">{t('Period')}</legend>
 				<div class="flex flex-wrap gap-1.5">
